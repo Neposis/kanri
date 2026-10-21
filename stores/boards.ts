@@ -263,6 +263,19 @@ export const useBoardsStore = defineStore("boards", {
       col.title = title;
       b.lastEdited = new Date();
     },
+    setColumnWidth(boardId: string, columnId: string, width?: number) {
+      const b = this.boardById(boardId);
+      if (!b) return;
+      const col = b.columns.find(c => c.id === columnId);
+      if (!col) return;
+
+      if (width === undefined) {
+        delete col.width;
+      } else {
+        col.width = Math.round(Math.min(Math.max(width, 160), 600));
+      }
+      b.lastEdited = new Date();
+    },
     updateColumn(boardId: string, column: Column) {
       const b = this.boardById(boardId);
       if (!b) return;

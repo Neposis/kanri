@@ -43,7 +43,7 @@ limitations under the License.
               @double-click="enableCardEditMode"
               @single-click="$emit('openEditCardModal', card)"
             >
-              <hr v-if="name === '---'" class="mt-0.5" />
+              <hr v-if="name === '---'" class="mt-0.5" >
               <p v-else ref="cardNameText">
                 {{ name }}
               </p>
@@ -120,7 +120,7 @@ limitations under the License.
             v-if="dueDate"
             class="flex flex-row items-center gap-1"
             :class="{
-              'text-buttons rounded-sm bg-accent px-1': isDueDateCompleted,
+              'text-buttons bg-accent rounded-sm px-1': isDueDateCompleted,
               'text-buttons rounded-sm bg-red-600 px-1': dueDateOverdue && !isDueDateCompleted,
             }"
           >

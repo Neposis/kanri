@@ -22,11 +22,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
   <div
     ref="columnDOMElement"
     :class="[
-      'kanban-column bg-elevation-1 max-h-column flex flex-col rounded-lg p-2',
-      columnSizeClass,
+      'kanban-column bg-elevation-1 max-h-column relative flex flex-col rounded-lg p-2',
+      effectiveWidth === undefined ? columnSizeClass : '',
       columnSpacingClass,
     ]"
+    :style="effectiveWidth === undefined ? undefined : { width: `${effectiveWidth}px` }"
   >
+    <div
+      class="nodrag absolute right-0 top-0 z-10 h-full w-2 cursor-col-resize rounded-r-lg transition-colors hover:bg-white/10"
+      @mousedown.stop.prevent="startResize"
+      @dblclick.stop="emit('updateColumnWidth', id, undefined)"
+    ></div>
     <div
       id="board-title"
       :class="[
@@ -36,7 +42,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
     >
       <div v-if="!titleEditing" class="flex flex-row items-center gap-1.5">
         <h1
-          class="stop-text-overflow ml-1 font-bold text-lg"
+          class="stop-text-overflow ml-1 text-lg font-bold"
           @click="enableTitleEditing()"
         >
           {{ props.title }}
@@ -55,7 +61,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
         v-focus
         :v-disable-spellcheck="settings.disableSpellcheck"
         :class="[
-          'bg-elevation-2 border-accent text-no-overflow -m-2 mr-2 w-full rounded-sm border-2 border-dotted px-2 outline-none font-bold text-lg',
+          'bg-elevation-2 border-accent text-no-overflow -m-2 mr-2 w-full rounded-sm border-2 border-dotted px-2 text-lg font-bold outline-none',
           inputSizeClass,
         ]"
         maxlength="1000"
@@ -65,7 +71,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
           updateColumnTitle();
           emitter.emit('columnActionDone');
         "
-      />
+      >
       
       <Dropdown align="end">
         <template #trigger>
@@ -78,19 +84,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
         </template>
         <template #content>
             <DropdownMenuItem
-              class="bg-elevation-2-hover w-full cursor-pointer rounded-md px-4 py-1.5 pr-6 text-left flex items-center gap-2"
+              class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
               @click="enableCardAddMode(true)"
             >
                 {{$t('components.kanban.column.addCardTop')}}
             </DropdownMenuItem>
             <DropdownMenuItem
-              class="bg-elevation-2-hover w-full cursor-pointer rounded-md px-4 py-1.5 pr-6 text-left flex items-center gap-2"
+              class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
               @click="$emit('removeAllColumnCards', id)"
             >
                  {{$t('components.kanban.card.deleteAllColumnCardsAction')}}               
             </DropdownMenuItem>
             <DropdownMenuItem
-              class="bg-elevation-2-hover w-full cursor-pointer rounded-md px-4 py-1.5 pr-6 text-left flex items-center gap-2"
+              class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
               @click="$emit('removeColumn', id)"
             >
                 {{$t('components.kanban.column.deleteColumnAction')}}
@@ -148,7 +154,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
         v-focus
         v-resizable
         :class="[
-          'bg-elevation-2 border-accent-focus border-2 border-transparent mb-2 overflow-hidden rounded-sm p-1 focus:border-dotted focus:outline-none',
+          'bg-elevation-2 border-accent-focus mb-2 overflow-hidden rounded-sm border-2 border-transparent p-1 focus:border-dotted focus:outline-none',
           textAreaSizeClass,
         ]"
         maxlength="5000"
@@ -224,6 +230,7 @@ const props = defineProps<{
   colIndex: number;
   id: string;
   title: string;
+  width?: number;
   zoomLevel: number;
   addToTopButtonShown?: boolean;
   cardCountDisplayEnabled?: boolean;
@@ -255,6 +262,7 @@ const emit = defineEmits<{
 
   // column actions
   (e: "updateColumnTitle", columnId: string, title: string): void;
+  (e: "updateColumnWidth", columnId: string, width: number | undefined): void;
   (e: "removeColumn", columnId: string): void;
   (e: "removeColumnNoConfirmation", columnId: string): void;
   (e: "setColumnEditIndex", columnIndex: number, eventType: string): void;
@@ -353,6 +361,31 @@ const titleTextClassZoom = computed(() => {
       return "";
   }
 });
+
+const MIN_COLUMN_WIDTH = 160;
+const MAX_COLUMN_WIDTH = 1200;
+const resizingWidth = ref<number | null>(null);
+const effectiveWidth = computed(() => resizingWidth.value ?? props.width);
+
+function startResize(e: MouseEvent) {
+  const startX = e.clientX;
+  const startWidth = columnDOMElement.value?.getBoundingClientRect().width ?? props.width ?? 256;
+  const clamp = (w: number) => Math.min(Math.max(w, MIN_COLUMN_WIDTH), MAX_COLUMN_WIDTH);
+
+  const onMove = (ev: MouseEvent) => {
+    resizingWidth.value = clamp(startWidth + ev.clientX - startX);
+  };
+  const onUp = () => {
+    window.removeEventListener("mousemove", onMove);
+    window.removeEventListener("mouseup", onUp);
+    if (resizingWidth.value !== null) {
+      emit("updateColumnWidth", props.id, resizingWidth.value);
+      resizingWidth.value = null;
+    }
+  };
+  window.addEventListener("mousemove", onMove);
+  window.addEventListener("mouseup", onUp);
+}
 
 const columnSizeClass = computed(() => {
   switch (props.zoomLevel) {

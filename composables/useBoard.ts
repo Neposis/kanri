@@ -85,6 +85,11 @@ export function useBoard(id: string | Ref<string>) {
     store.setColumnTitle(board.value.id, columnId, title);
   }
 
+  function setColumnWidth(columnId: string, width?: number) {
+    if (!board.value) return;
+    store.setColumnWidth(board.value.id, columnId, width);
+  }
+
   // Cards
   function createCard(columnId: string, card: Card, addToTop?: boolean) {
     if (!board.value) return;
@@ -243,6 +248,7 @@ export function useBoard(id: string | Ref<string>) {
     removeColumn,
     reorderColumns,
     setColumnTitle,
+    setColumnWidth,
 
     // card actions
     createCard,

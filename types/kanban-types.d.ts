@@ -39,6 +39,7 @@ export declare interface Column {
   cards: Array<Card>;
   id: string;
   title: string;
+  width?: number;
 }
 
 export declare interface Task {
