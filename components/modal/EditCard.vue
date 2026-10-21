@@ -287,16 +287,28 @@ limitations under the License.
 
         <div class="overflow-auto">
           <div class="flex flex-col pr-6">
-            <h2 class="text-lg font-semibold">
-              {{ $t("modals.editCard.progressTitle") }}: {{ progress }}%
-            </h2>
+            <div class="flex flex-row items-center gap-2">
+              <h2 class="text-lg font-semibold">
+                {{ $t("modals.editCard.progressTitle") }}: {{ progress }}%
+              </h2>
+              <label class="ml-auto flex cursor-pointer items-center gap-1.5 text-sm">
+                <input
+                  v-model="progressVisible"
+                  type="checkbox"
+                  class="accent-accent cursor-pointer"
+                  @change="emit('setCardProgressVisible', columnID, props.card?.id, progressVisible)"
+                >
+                {{ $t("modals.editCard.showProgress") }}
+              </label>
+            </div>
             <input
               v-model.number="progress"
               type="range"
               min="0"
               max="100"
               step="5"
-              class="accent-accent my-2 w-full cursor-pointer"
+              class="accent-accent my-2 w-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+              :disabled="progressSyncActive"
               @change="emit('setCardProgress', columnID, props.card?.id, progress)"
             >
           </div>
@@ -317,6 +329,18 @@ limitations under the License.
               <span v-if="tasks.length !== 0" class="text-dim-1 text-sm"
                 >({{ getCheckedTaskNumber }}/{{ tasks.length }})</span
               >
+              <label
+                v-if="tasks.length !== 0"
+                class="ml-auto mr-6 flex cursor-pointer items-center gap-1.5 text-sm"
+              >
+                <input
+                  v-model="progressFromTasks"
+                  type="checkbox"
+                  class="accent-accent cursor-pointer"
+                  @change="toggleProgressFromTasks"
+                >
+                {{ $t("modals.editCard.useTasksAsProgress") }}
+              </label>
             </div>
             <ProgressRoot
               v-if="tasks"
@@ -549,6 +573,18 @@ const emit = defineEmits<{
     progress: number
   ): void;
   (
+    e: "setCardProgressVisible",
+    columnID: string,
+    cardId: string | undefined,
+    visible: boolean
+  ): void;
+  (
+    e: "setCardProgressFromTasks",
+    columnID: string,
+    cardId: string | undefined,
+    enabled: boolean
+  ): void;
+  (
     e: "setCardTags",
     columnID: string,
     cardId: string | undefined,
@@ -576,6 +612,11 @@ const columnID = ref("");
 const { textarea: titleTextArea, input: title } = useTextareaAutosize();
 const description = ref("");
 const progress = ref(0);
+const progressFromTasks = ref(true);
+const progressVisible = ref(true);
+const progressSyncActive = computed(
+  () => progressFromTasks.value && tasks.value.length > 0
+);
 const tasks: Ref<Array<{ finished: boolean; id?: string; name: string }>> = ref(
   []
 );
@@ -788,6 +829,20 @@ const updateTitle = () => {
   emit("setCardTitle", columnID.value, props.card?.id, title.value);
 };
 
+const toggleProgressFromTasks = () => {
+  emit(
+    "setCardProgressFromTasks",
+    columnID.value,
+    props.card?.id,
+    progressFromTasks.value
+  );
+  if (progressSyncActive.value) progress.value = Math.round(getTaskPercentage.value);
+};
+
+watch(getTaskPercentage, (pct) => {
+  if (progressSyncActive.value) progress.value = Math.round(pct);
+});
+
 const setCardColor = (
   columnID: string,
   cardId: string | undefined,
@@ -823,6 +878,8 @@ watch(props, (newVal) => {
     title.value = newVal.card.name;
     description.value = newVal.card.description || "";
     progress.value = newVal.card.progress ?? 0;
+    progressFromTasks.value = newVal.card.progressFromTasks ?? true;
+    progressVisible.value = !newVal.card.hideProgress;
 
     //@ts-expect-error TODO: improve due date handling/types
     dueDate.value = newVal.card.dueDate || null;

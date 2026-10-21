@@ -144,7 +144,10 @@
         "addCardTop": "Добавить карточку наверх",
         "deleteColumnAction": "Удалить колонку",
         "deleteColumnConfirmation": "Вы уверены, что хотите удалить колонку '{columnName}'? Это действие нельзя отменить.",
-        "addCardPlaceholder": "Введите название карточки..."
+        "addCardPlaceholder": "Введите название карточки...",
+        "archived": "В архиве",
+        "compactProgress": "Показывать прогресс только в процентах",
+        "expandProgress": "Показывать полосы прогресса"
       },
       "card": {
         "deleteCardAction": "Удалить карточку",
@@ -199,6 +202,9 @@
       "countdown": "Показывать оставшееся время",
       "dateRemove": "Убрать дедлайн",
       "descriptionTitle": "Описание карточки",
+      "progressTitle": "Прогресс",
+      "showProgress": "Показывать на карточке",
+      "useTasksAsProgress": "Использовать задачи как прогресс",
       "taskTitle": "Задания",
       "taskAdd": "Добавить задание",
       "newTaskPlaceholder": "Введите задание...",

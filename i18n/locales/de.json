@@ -144,7 +144,10 @@
         "addCardTop": "Karte oben hinzufügen",
         "deleteColumnAction": "Spalte löschen",
         "deleteColumnConfirmation": "Bist du sicher, dass du die Spalte '{columnName}' löschen möchtest? Diese Aktion ist irreversibel.",
-        "addCardPlaceholder": "Name der Karte..."
+        "addCardPlaceholder": "Name der Karte...",
+        "archived": "Archiviert",
+        "compactProgress": "Fortschritt nur als Prozent anzeigen",
+        "expandProgress": "Fortschrittsbalken anzeigen"
       },
       "card": {
         "deleteCardAction": "Karte löschen",
@@ -199,6 +202,9 @@
       "countdown": "Relativer Countdown",
       "dateRemove": "Fälligkeitsdatum entfernen",
       "descriptionTitle": "Kartenbeschreibung",
+      "progressTitle": "Fortschritt",
+      "showProgress": "Auf Karte anzeigen",
+      "useTasksAsProgress": "Aufgaben als Fortschritt verwenden",
       "taskTitle": "Aufgaben",
       "taskAdd": "Aufgabe hinzufügen",
       "newTaskPlaceholder": "Name der Aufgabe...",

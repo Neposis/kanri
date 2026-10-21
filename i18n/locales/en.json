@@ -151,7 +151,9 @@
         "deleteColumnAction": "Delete column",
         "deleteColumnConfirmation": "Are you sure you want to delete the column '{columnName}'? This action is irreversible.",
         "addCardPlaceholder": "Enter a card name...",
-        "archived": "Archived"
+        "archived": "Archived",
+        "compactProgress": "Show progress as percentage only",
+        "expandProgress": "Show progress bars"
       },
       "card": {
         "deleteCardAction": "Delete card",
@@ -210,6 +212,8 @@
       "dateRemove": "Remove due date",
       "descriptionTitle": "Card Description",
       "progressTitle": "Progress",
+      "showProgress": "Show on card",
+      "useTasksAsProgress": "Use tasks as progress",
       "taskTitle": "Tasks",
       "taskAdd": "Add Task",
       "newTaskPlaceholder": "Enter a task...",

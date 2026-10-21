@@ -90,6 +90,11 @@ export function useBoard(id: string | Ref<string>) {
     store.setColumnWidth(board.value.id, columnId, width);
   }
 
+  function setColumnCompactProgress(columnId: string, compact: boolean) {
+    if (!board.value) return;
+    store.setColumnCompactProgress(board.value.id, columnId, compact);
+  }
+
   // Cards
   function createCard(columnId: string, card: Card, addToTop?: boolean) {
     if (!board.value) return;
@@ -150,6 +155,32 @@ export function useBoard(id: string | Ref<string>) {
     });
   };
 
+  const setCardTasksExpanded = (
+    columnId: string,
+    cardId: string | undefined,
+    expanded: boolean
+  ) => {
+    if (!board.value) return;
+    if (!cardId) return;
+
+    mutateCard(columnId, cardId, (card) => {
+      card.tasksExpanded = expanded;
+    });
+  };
+
+  const setCardProgressVisible = (
+    columnId: string,
+    cardId: string | undefined,
+    visible: boolean
+  ) => {
+    if (!board.value) return;
+    if (!cardId) return;
+
+    mutateCard(columnId, cardId, (card) => {
+      card.hideProgress = !visible;
+    });
+  };
+
   const setCardProgress = (
     columnId: string,
     cardId: string | undefined,
@@ -199,7 +230,29 @@ export function useBoard(id: string | Ref<string>) {
 
     mutateCard(columnId, cardId, (card) => {
       card.tasks = tasks;
+      if (card.progressFromTasks !== false && tasks?.length) {
+        card.progress = taskPercentage(tasks);
+      }
     });
+  };
+
+  const setCardProgressFromTasks = (
+    columnId: string,
+    cardId: string | undefined,
+    enabled: boolean
+  ) => {
+    if (!board.value) return;
+    if (!cardId) return;
+
+    mutateCard(columnId, cardId, (card) => {
+      card.progressFromTasks = enabled;
+      if (enabled) card.progress = taskPercentage(card.tasks);
+    });
+  };
+
+  const taskPercentage = (tasks: Card["tasks"]) => {
+    if (!tasks || tasks.length === 0) return 0;
+    return Math.round((tasks.filter((t) => t.finished).length / tasks.length) * 100);
   };
 
   const setCardDueDate = (
@@ -275,6 +328,7 @@ export function useBoard(id: string | Ref<string>) {
     reorderColumns,
     setColumnTitle,
     setColumnWidth,
+    setColumnCompactProgress,
 
     // card actions
     createCard,
@@ -286,6 +340,9 @@ export function useBoard(id: string | Ref<string>) {
     setCardName,
     setCardDone,
     setCardProgress,
+    setCardProgressVisible,
+    setCardProgressFromTasks,
+    setCardTasksExpanded,
     setCardDescription,
     setCardColor,
     setCardTasks,

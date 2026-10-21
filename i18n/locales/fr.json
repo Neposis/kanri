@@ -144,7 +144,10 @@
         "addCardTop": "Ajouter une carte en haut",
         "deleteColumnAction": "Supprimer la colonne",
         "deleteColumnConfirmation": "Êtes-vous sûr de vouloir supprimer la colonne '{columnName}'? Cette action est irréversible.",
-        "addCardPlaceholder": "Saisir l'intitulé de la carte..."
+        "addCardPlaceholder": "Saisir l'intitulé de la carte...",
+        "archived": "Archivées",
+        "compactProgress": "Afficher la progression en pourcentage uniquement",
+        "expandProgress": "Afficher les barres de progression"
       },
       "card": {
         "deleteCardAction": "Supprimer la carte",
@@ -199,6 +202,9 @@
       "countdown": "Compte à rebours relatif",
       "dateRemove": "Supprimer la date d'échéance",
       "descriptionTitle": "Description de la carte",
+      "progressTitle": "Progression",
+      "showProgress": "Afficher sur la carte",
+      "useTasksAsProgress": "Utiliser les tâches comme progression",
       "taskTitle": "Tâches",
       "taskAdd": "Ajouter une tâche",
       "newTaskPlaceholder": "Ajouter une tâche...",

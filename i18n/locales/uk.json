@@ -144,7 +144,10 @@
         "addCardTop": "Додати картку вгорі",
         "deleteColumnAction": "Видалити колонку",
         "deleteColumnConfirmation": "Ви впевнені, що хочете видалити колонку '{columnName}'? Ця дія є незворотною.",
-        "addCardPlaceholder": "Введіть назву картки..."
+        "addCardPlaceholder": "Введіть назву картки...",
+        "archived": "Архівовані",
+        "compactProgress": "Показувати прогрес лише у відсотках",
+        "expandProgress": "Показувати смуги прогресу"
       },
       "card": {
         "deleteCardAction": "Видалити картку",
@@ -199,6 +202,9 @@
       "countdown": "Зворотний відлік",
       "dateRemove": "Видалити термін виконання",
       "descriptionTitle": "Опис картки",
+      "progressTitle": "Прогрес",
+      "showProgress": "Показувати на картці",
+      "useTasksAsProgress": "Використовувати завдання як прогрес",
       "taskTitle": "Завдання",
       "taskAdd": "Додати завдання",
       "newTaskPlaceholder": "Введіть завдання...",

@@ -147,7 +147,10 @@
         "addCardTop": "เพิ่มการ์ดไปด้านบน",
         "deleteColumnAction": "ลบคอลัมน์",
         "deleteColumnConfirmation": "คุณแน่ใจหรือไม่ว่าต้องการลบคอลัมน์ '{columnName}' การกระทำนี้ไม่สามารถย้อนกลับได้",
-        "addCardPlaceholder": "ตั้งชื่อการ์ด..."
+        "addCardPlaceholder": "ตั้งชื่อการ์ด...",
+        "archived": "เก็บถาวร",
+        "compactProgress": "แสดงความคืบหน้าเป็นเปอร์เซ็นต์เท่านั้น",
+        "expandProgress": "แสดงแถบความคืบหน้า"
       },
       "card": {
         "deleteCardAction": "ลบการ์ด",
@@ -202,6 +205,9 @@
       "countdown": "นับถอยหลังแบบละเอียด",
       "dateRemove": "ลบการนับถอยหลัง",
       "descriptionTitle": "คำอธิบายการ์ด",
+      "progressTitle": "ความคืบหน้า",
+      "showProgress": "แสดงบนการ์ด",
+      "useTasksAsProgress": "ใช้งานย่อยเป็นความคืบหน้า",
       "taskTitle": "งาน",
       "taskAdd": "เพิ่มงาน",
       "newTaskPlaceholder": "ป้อนงาน...",

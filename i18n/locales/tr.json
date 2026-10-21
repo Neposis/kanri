@@ -144,7 +144,10 @@
         "addCardTop": "Kartı üste ekle",
         "deleteColumnAction": "Sütunu sil",
         "deleteColumnConfirmation": "'{columnName}' sütununu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
-        "addCardPlaceholder": "Bir kart adı girin..."
+        "addCardPlaceholder": "Bir kart adı girin...",
+        "archived": "Arşivlenenler",
+        "compactProgress": "İlerlemeyi yalnızca yüzde olarak göster",
+        "expandProgress": "İlerleme çubuklarını göster"
       },
       "card": {
         "deleteCardAction": "Kartı sil",
@@ -199,6 +202,9 @@
       "countdown": "Göreceli geri sayım",
       "dateRemove": "Bitiş tarihini kaldır",
       "descriptionTitle": "Kart Açıklaması",
+      "progressTitle": "İlerleme",
+      "showProgress": "Kartta göster",
+      "useTasksAsProgress": "Görevleri ilerleme olarak kullan",
       "taskTitle": "Görevler",
       "taskAdd": "Görev Ekle",
       "newTaskPlaceholder": "Bir görev girin...",

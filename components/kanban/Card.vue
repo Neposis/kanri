@@ -66,7 +66,10 @@ limitations under the License.
             class="mr-2 mt-[4px] flex min-w-0 flex-1 flex-row items-center gap-2 self-center"
             @click="$emit('openEditCardModal', card)"
           >
-            <div class="bg-elevation-3 h-1.5 flex-1 overflow-hidden rounded-full">
+            <div
+              v-if="!compactProgress"
+              class="bg-elevation-3 h-1.5 flex-1 overflow-hidden rounded-full"
+            >
               <div
                 class="h-full rounded-full bg-green-500 transition-all duration-300"
                 :style="{ width: `${card.progress}%` }"
@@ -129,7 +132,8 @@ limitations under the License.
             :class="{
               'bg-accent text-buttons rounded-sm px-1': allTasksCompleted,
             }"
-            class="flex flex-row items-center gap-1"
+            class="flex cursor-pointer flex-row items-center gap-1"
+            @click.stop="toggleTasksExpanded"
           >
             <PhChecks
               v-if="allTasksCompleted"
@@ -144,6 +148,14 @@ limitations under the License.
               ]"
               >{{ taskCompletionStatus }}</span
             >
+            <PhCaretDown
+              class="transition-transform duration-200"
+              :class="[
+                allTasksCompleted ? 'text-buttons' : cardTextColorDim,
+                iconSizeClass,
+                { 'rotate-180': card.tasksExpanded },
+              ]"
+            />
           </div>
 
           <div
@@ -162,6 +174,26 @@ limitations under the License.
             <PhClock v-else :class="iconSizeClass" />
             <span :class="taskTextClass">{{ getFormattedDueDate }}</span>
           </div>
+        </div>
+
+        <div
+          v-if="card.tasksExpanded && tasks && tasks.length > 0"
+          class="task-list custom-scrollbar max-h-24 w-full overflow-y-auto rounded-sm pr-1"
+          :class="taskTextClass"
+        >
+          <label
+            v-for="task in tasks"
+            :key="task.id ?? task.name"
+            class="flex cursor-pointer flex-row items-start gap-1.5 py-0.5"
+          >
+            <input
+              type="checkbox"
+              class="accent-accent mt-[3px] shrink-0 cursor-pointer"
+              :checked="task.finished"
+              @change="toggleTask(task)"
+            >
+            <span :class="{ 'line-through opacity-60': task.finished }">{{ task.name }}</span>
+          </label>
         </div>
       </div>
     </ContextMenuTrigger>
@@ -195,11 +227,12 @@ limitations under the License.
 </template>
 
 <script setup lang="ts">
-import type { Card, Tag } from "@/types/kanban-types";
+import type { Card, Tag, Task } from "@/types/kanban-types";
 
 import { getContrast } from "~/utils/colorUtils";
 import {
   PhCheckCircle,
+  PhCaretDown,
   PhCircle,
   PhChecks,
   PhClock,
@@ -218,6 +251,7 @@ import {
 const props = defineProps<{
   card: Card;
   zoomLevel: number;
+  compactProgress?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -232,6 +266,8 @@ const emit = defineEmits<{
   ): void;
   (e: "setCardName", cardId: string | undefined, name: string): void;
   (e: "setCardDone", cardId: string | undefined, done: boolean): void;
+  (e: "setCardTasks", cardId: string | undefined, tasks: Array<Task>): void;
+  (e: "setCardTasksExpanded", cardId: string | undefined, expanded: boolean): void;
   (e: "updateCardTags", cardId: string | undefined, tags: Array<Tag>): void;
   (e: "duplicateCard", cardId: string | undefined): void;
 }>();
@@ -293,6 +329,18 @@ const isDescriptionEmpty = computed(() => {
   return false;
 });
 
+const toggleTasksExpanded = () => {
+  emit("setCardTasksExpanded", props.card.id, !props.card.tasksExpanded);
+};
+
+const toggleTask = (task: Task) => {
+  if (!tasks.value) return;
+  const next = tasks.value.map((t) =>
+    t === task ? { ...t, finished: !t.finished } : t
+  );
+  emit("setCardTasks", props.card.id, next);
+};
+
 const taskCompletionStatus = computed(() => {
   if (!tasks.value) return "0/0";
 
@@ -315,7 +363,11 @@ const allTasksCompleted = computed(() => {
 
 // New computed properties for scaling elements
 const hasProgress = computed(
-  () => !!props.card.progress && props.card.progress > 0 && name.value !== "---"
+  () =>
+    !!props.card.progress &&
+    props.card.progress > 0 &&
+    !props.card.hideProgress &&
+    name.value !== "---"
 );
 
 const zoomClass = computed(() => {

@@ -144,7 +144,10 @@
         "addCardTop": "Añadir carta arriba",
         "deleteColumnAction": "Borrar columna",
         "deleteColumnConfirmation": "¿Estás seguro de querer borrar la columna '{columnName}? Esta acción es irreversible.",
-        "addCardPlaceholder": "Introduzca un nombre para la carta..."
+        "addCardPlaceholder": "Introduzca un nombre para la carta...",
+        "archived": "Archivadas",
+        "compactProgress": "Mostrar el progreso solo como porcentaje",
+        "expandProgress": "Mostrar barras de progreso"
       },
       "card": {
         "deleteCardAction": "Borrar carta",
@@ -199,6 +202,9 @@
       "countdown": "Conteo relativo",
       "dateRemove": "Remover fecha de vencimiento",
       "descriptionTitle": "Descripción de la carta",
+      "progressTitle": "Progreso",
+      "showProgress": "Mostrar en la carta",
+      "useTasksAsProgress": "Usar tareas como progreso",
       "taskTitle": "Tareas",
       "taskAdd": "Añadir Tarea",
       "newTaskPlaceholder": "Introduzca una tarea...",

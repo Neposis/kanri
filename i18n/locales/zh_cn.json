@@ -144,7 +144,10 @@
         "addCardTop": "添加卡片到顶部",
         "deleteColumnAction": "删除列表",
         "deleteColumnConfirmation": "您确定要删除列表 '{columnName}' 吗？此操作不可逆。",
-        "addCardPlaceholder": "输入卡片名称..."
+        "addCardPlaceholder": "输入卡片名称...",
+        "archived": "已归档",
+        "compactProgress": "仅以百分比显示进度",
+        "expandProgress": "显示进度条"
       },
       "card": {
         "deleteCardAction": "删除卡片",
@@ -199,6 +202,9 @@
       "countdown": "相对倒计时",
       "dateRemove": "移除截止日期",
       "descriptionTitle": "卡片描述",
+      "progressTitle": "进度",
+      "showProgress": "在卡片上显示",
+      "useTasksAsProgress": "使用任务作为进度",
       "taskTitle": "任务",
       "taskAdd": "添加任务",
       "newTaskPlaceholder": "输入任务...",

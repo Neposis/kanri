@@ -150,7 +150,10 @@
         "addCardTop": "上にカードを追加",
         "deleteColumnAction": "列を削除",
         "deleteColumnConfirmation": "列「{columnName}」を削除してもよろしいですか？この操作は取り消せません。",
-        "addCardPlaceholder": "カード名を入力..."
+        "addCardPlaceholder": "カード名を入力...",
+        "archived": "アーカイブ済み",
+        "compactProgress": "進捗をパーセンテージのみで表示",
+        "expandProgress": "進捗バーを表示"
       },
       "card": {
         "deleteCardAction": "カードを削除",
@@ -208,6 +211,9 @@
       "countdown": "相対カウントダウン",
       "dateRemove": "期日を削除",
       "descriptionTitle": "カードの説明",
+      "progressTitle": "進捗",
+      "showProgress": "カードに表示",
+      "useTasksAsProgress": "タスクを進捗として使用",
       "taskTitle": "タスク",
       "taskAdd": "タスクを追加",
       "newTaskPlaceholder": "タスクを入力...",

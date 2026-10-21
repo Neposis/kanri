@@ -276,6 +276,15 @@ export const useBoardsStore = defineStore("boards", {
       }
       b.lastEdited = new Date();
     },
+    setColumnCompactProgress(boardId: string, columnId: string, compact: boolean) {
+      const b = this.boardById(boardId);
+      if (!b) return;
+      const col = b.columns.find(c => c.id === columnId);
+      if (!col) return;
+
+      col.compactProgress = compact;
+      b.lastEdited = new Date();
+    },
     updateColumn(boardId: string, column: Column) {
       const b = this.boardById(boardId);
       if (!b) return;

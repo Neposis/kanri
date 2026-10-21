@@ -40,6 +40,7 @@ export declare interface Column {
   id: string;
   title: string;
   width?: number;
+  compactProgress?: boolean;
 }
 
 export declare interface Task {
@@ -66,6 +67,9 @@ export declare interface Card {
   name: string;
   progress?: number;
   tasks?: Array<Task>;
+  tasksExpanded?: boolean;
+  progressFromTasks?: boolean;
+  hideProgress?: boolean;
   tags?: Array<Tag> | null;
 }
 

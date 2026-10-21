@@ -91,6 +91,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
             </DropdownMenuItem>
             <DropdownMenuItem
               class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
+              @click="$emit('updateColumnCompactProgress', id, !compactProgress)"
+            >
+                {{ compactProgress ? $t('components.kanban.column.expandProgress') : $t('components.kanban.column.compactProgress') }}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
               @click="$emit('removeAllColumnCards', id)"
             >
                  {{$t('components.kanban.card.deleteAllColumnCardsAction')}}               
@@ -114,6 +120,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
       drag-class="cursor-grabbing"
       drag-handle-selector=".kanbancard-drag"
       group-name="cards"
+      non-drag-area-selector=".task-list"
       orientation="vertical"
       :get-ghost-parent="getGhostParent"
       @drop="(r: any) => onDrop(false, r)"
@@ -131,6 +138,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
           :card="card"
           :index="index"
           :zoom-level="zoomLevel"
+          :compact-progress="compactProgress"
           @disable-dragging="disableDragging"
           @enable-dragging="enableDragging"
           @open-edit-card-modal="openEditCardModal"
@@ -140,6 +148,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
           @update-card-tags="updateCardTags"
           @duplicate-card="duplicateCard"
           @set-card-done="setCardDone"
+          @set-card-tasks="setCardTasks"
+          @set-card-tasks-expanded="setCardTasksExpanded"
         />
       </Draggable>
     </Container>
@@ -163,6 +173,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
         drag-class="cursor-grabbing"
         drag-handle-selector=".kanbancard-drag"
         group-name="cards"
+      non-drag-area-selector=".task-list"
         orientation="vertical"
         :get-ghost-parent="getGhostParent"
         @drop="(r: any) => onDrop(true, r)"
@@ -180,6 +191,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
             :card="card"
             :index="index"
             :zoom-level="zoomLevel"
+            :compact-progress="compactProgress"
             @disable-dragging="disableDragging"
             @enable-dragging="enableDragging"
             @open-edit-card-modal="openEditCardModal"
@@ -189,6 +201,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
             @update-card-tags="updateCardTags"
             @duplicate-card="duplicateCard"
             @set-card-done="setCardDone"
+          @set-card-tasks="setCardTasks"
+          @set-card-tasks-expanded="setCardTasksExpanded"
           />
         </Draggable>
       </Container>
@@ -266,7 +280,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
 </template>
 
 <script setup lang="ts">
-import type { Card, Tag } from "@/types/kanban-types";
+import type { Card, Tag, Task } from "@/types/kanban-types";
 import type { Ref } from "vue";
 
 import { applyDrag } from "@/utils/drag-n-drop";
@@ -282,6 +296,7 @@ const props = defineProps<{
   id: string;
   title: string;
   width?: number;
+  compactProgress?: boolean;
   zoomLevel: number;
   addToTopButtonShown?: boolean;
   cardCountDisplayEnabled?: boolean;
@@ -314,6 +329,7 @@ const emit = defineEmits<{
   // column actions
   (e: "updateColumnTitle", columnId: string, title: string): void;
   (e: "updateColumnWidth", columnId: string, width: number | undefined): void;
+  (e: "updateColumnCompactProgress", columnId: string, compact: boolean): void;
   (e: "removeColumn", columnId: string): void;
   (e: "removeColumnNoConfirmation", columnId: string): void;
   (e: "setColumnEditIndex", columnIndex: number, eventType: string): void;
@@ -321,6 +337,8 @@ const emit = defineEmits<{
   (e: "duplicateCard", columnId: string, cardId: string | undefined): void;
   (e: "reorderCards", columnId: string, newCardsOrder: Array<Card>): void;
   (e: "setCardDone", columnId: string, cardId: string | undefined, done: boolean): void;
+  (e: "setCardTasks", columnId: string, cardId: string | undefined, tasks: Array<Task>): void;
+  (e: "setCardTasksExpanded", columnId: string, cardId: string | undefined, expanded: boolean): void;
 }>();
 
 const { t } = useI18n();
@@ -777,6 +795,14 @@ const archivedCards = computed(() => filteredCards.value.filter((c) => c.done));
 
 const setCardDone = (cardId: string | undefined, done: boolean) => {
   emit("setCardDone", props.id, cardId, done);
+};
+
+const setCardTasks = (cardId: string | undefined, tasks: Task[]) => {
+  emit("setCardTasks", props.id, cardId, tasks);
+};
+
+const setCardTasksExpanded = (cardId: string | undefined, expanded: boolean) => {
+  emit("setCardTasksExpanded", props.id, cardId, expanded);
 };
 
 const enableDragging = () => {

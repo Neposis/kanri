@@ -48,6 +48,9 @@ const kanriCardSchema = z.object({
   description: z.string().optional(),
   done: z.boolean().optional().nullable(),
   progress: z.number().min(0).max(100).optional().nullable(),
+  tasksExpanded: z.boolean().optional().nullable(),
+  progressFromTasks: z.boolean().optional().nullable(),
+  hideProgress: z.boolean().optional().nullable(),
   id: z.string().optional(),
   name: z.string(),
   tasks: z
@@ -68,6 +71,7 @@ const kanriColumnSchema = z.object({
   id: z.string(),
   title: z.string(),
   width: z.number().optional().nullable(),
+  compactProgress: z.boolean().optional().nullable(),
 });
 
 const kanriBoardBackgroundSchema = z
