@@ -34,10 +34,52 @@ limitations under the License.
         @click.self="$emit('openEditCardModal', card)"
       >
         <div
-          :class="{ 'pb-1': cardHasNoExtraProperties }"
+          :class="{ 'pb-1': cardHasNoExtraProperties, 'flex-wrap': hasProgress }"
           class="flex w-full flex-row items-start justify-between"
         >
-          <p class="text-no-overflow mr-2 w-full min-w-[28px]">
+          <button
+            v-if="name !== '---'"
+            type="button"
+            class="group mr-2 mt-[4px] shrink-0 cursor-pointer"
+            :class="card.done ? 'text-green-500' : cardTextColorDim"
+            @click.stop="emit('setCardDone', card.id, !card.done)"
+            @contextmenu.stop.prevent="deleteCardWithConfirmation(card.id)"
+          >
+            <span class="relative block" :class="iconSizeClass">
+              <PhCircle
+                class="absolute inset-0 size-full transition-all duration-200"
+                :class="card.done ? 'scale-50 opacity-0' : 'group-hover:scale-75 group-hover:opacity-0'"
+              />
+              <PhCheckCircle
+                weight="fill"
+                class="absolute inset-0 size-full text-green-500 transition-all duration-200"
+                :class="
+                  card.done
+                    ? 'scale-100 opacity-100 group-hover:opacity-60'
+                    : 'scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-70'
+                "
+              />
+            </span>
+          </button>
+          <div
+            v-if="hasProgress"
+            class="mr-2 mt-[4px] flex min-w-0 flex-1 flex-row items-center gap-2 self-center"
+            @click="$emit('openEditCardModal', card)"
+          >
+            <div class="bg-elevation-3 h-1.5 flex-1 overflow-hidden rounded-full">
+              <div
+                class="h-full rounded-full bg-green-500 transition-all duration-300"
+                :style="{ width: `${card.progress}%` }"
+              />
+            </div>
+            <span class="shrink-0 text-xs font-semibold text-green-500">
+              {{ card.progress }}%
+            </span>
+          </div>
+          <p
+            class="text-no-overflow mr-2 w-full min-w-[28px]"
+            :class="{ 'order-1 mt-1 basis-full': hasProgress }"
+          >
             <ClickCounter
               v-if="!cardNameEditMode"
               @double-click="enableCardEditMode"
@@ -61,18 +103,6 @@ limitations under the License.
               @keypress.enter="updateCardName"
             />
           </p>
-
-          <ClickCounter
-            v-if="name !== '---'"
-            class="cursor-pointer"
-            @double-click="deleteCardWithAnimation(card.id)"
-            @single-click="deleteCardWithConfirmation(card.id)"
-          >
-            <XMarkIcon
-              class="text-accent-hover mt-[4px] size-4"
-              :class="[cardTextColor, iconSizeClass]"
-            />
-          </ClickCounter>
         </div>
 
         <div
@@ -168,9 +198,9 @@ limitations under the License.
 import type { Card, Tag } from "@/types/kanban-types";
 
 import { getContrast } from "~/utils/colorUtils";
-import { XMarkIcon } from "@heroicons/vue/24/solid";
 import {
   PhCheckCircle,
+  PhCircle,
   PhChecks,
   PhClock,
   PhListChecks,
@@ -201,6 +231,7 @@ const emit = defineEmits<{
     cardRef: Ref<HTMLDivElement | null>
   ): void;
   (e: "setCardName", cardId: string | undefined, name: string): void;
+  (e: "setCardDone", cardId: string | undefined, done: boolean): void;
   (e: "updateCardTags", cardId: string | undefined, tags: Array<Tag>): void;
   (e: "duplicateCard", cardId: string | undefined): void;
 }>();
@@ -283,6 +314,10 @@ const allTasksCompleted = computed(() => {
 });
 
 // New computed properties for scaling elements
+const hasProgress = computed(
+  () => !!props.card.progress && props.card.progress > 0 && name.value !== "---"
+);
+
 const zoomClass = computed(() => {
   switch (props.zoomLevel) {
     case -1:
@@ -456,20 +491,6 @@ const deleteCardWithConfirmation = (id: string | undefined) => {
     // eslint-disable-next-line vue/no-ref-as-operand
     emit("removeCardWithConfirmation", id, cardRef);
   }
-};
-
-const deleteCardWithAnimation = (id: string | undefined) => {
-  if (!cardRef.value) return;
-
-  const oldClasses = cardRef.value.classList.value;
-  cardRef.value.classList.value = oldClasses + " card-hidden";
-
-  setTimeout(() => {
-    emit("removeCard", id);
-
-    if (!cardRef.value) return;
-    cardRef.value.classList.value = oldClasses;
-  }, 250);
 };
 
 const enableCardEditMode = () => {

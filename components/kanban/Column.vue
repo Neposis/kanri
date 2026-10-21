@@ -50,7 +50,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
         <span
           v-if="cardCountDisplayEnabled"
           :class="['bg-elevation-2 rounded-2xl px-2 py-0.5', badgeSizeClass]"
-          >{{ cards.length }}</span
+          >{{ cards.filter((c) => !c.done).length }}</span
         >
       </div>
 
@@ -116,10 +116,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
       group-name="cards"
       orientation="vertical"
       :get-ghost-parent="getGhostParent"
-      @drop="onDrop"
+      @drop="(r: any) => onDrop(false, r)"
     >
       <Draggable
-        v-for="(card, index) in filteredCards"
+        v-for="(card, index) in activeCards"
         :key="card.id"
         :class="[
           draggingEnabled ? 'kanbancard-drag' : 'nomoredragging',
@@ -139,9 +139,60 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
           @set-card-name="setCardName"
           @update-card-tags="updateCardTags"
           @duplicate-card="duplicateCard"
+          @set-card-done="setCardDone"
         />
       </Draggable>
     </Container>
+
+    <div v-if="archivedCards.length > 0" class="mt-2">
+      <button
+        type="button"
+        class="text-accent-hover flex w-full cursor-pointer items-center gap-1 px-1 text-left text-sm font-semibold"
+        @click="archiveOpen = !archiveOpen"
+      >
+        <span>{{ archiveOpen ? "▾" : "▸" }}</span>
+        {{ $t("components.kanban.column.archived") }} ({{ archivedCards.length }})
+      </button>
+      <Container
+        v-if="archiveOpen"
+        :get-child-payload="getArchivedChildPayload"
+        :class="[
+          'max-h-65vh custom-scrollbar mt-1 min-h-8 overflow-y-auto rounded-sm opacity-60',
+          containerSpacingClass,
+        ]"
+        drag-class="cursor-grabbing"
+        drag-handle-selector=".kanbancard-drag"
+        group-name="cards"
+        orientation="vertical"
+        :get-ghost-parent="getGhostParent"
+        @drop="(r: any) => onDrop(true, r)"
+      >
+        <Draggable
+          v-for="(card, index) in archivedCards"
+          :key="card.id"
+          :class="[
+            draggingEnabled ? 'kanbancard-drag' : 'nomoredragging',
+            cardSpacingClass,
+          ]"
+          :index="index"
+        >
+          <KanbanCard
+            :card="card"
+            :index="index"
+            :zoom-level="zoomLevel"
+            @disable-dragging="disableDragging"
+            @enable-dragging="enableDragging"
+            @open-edit-card-modal="openEditCardModal"
+            @remove-card="removeCard"
+            @remove-card-with-confirmation="removeCardWithConfirmation"
+            @set-card-name="setCardName"
+            @update-card-tags="updateCardTags"
+            @duplicate-card="duplicateCard"
+            @set-card-done="setCardDone"
+          />
+        </Draggable>
+      </Container>
+    </div>
 
     <div
       v-if="cardAddMode"
@@ -269,6 +320,7 @@ const emit = defineEmits<{
   (e: "setCardName", columnId: string, cardId: string | undefined, name: string): void;
   (e: "duplicateCard", columnId: string, cardId: string | undefined): void;
   (e: "reorderCards", columnId: string, newCardsOrder: Array<Card>): void;
+  (e: "setCardDone", columnId: string, cardId: string | undefined, done: boolean): void;
 }>();
 
 const { t } = useI18n();
@@ -691,19 +743,40 @@ const keyDownListener = (e: { key: string }) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const onDrop = (dropResult: any) => {
-  cards.value = applyDrag(cards.value, dropResult);
+const onDrop = (archived: boolean, dropResult: any) => {
+  const { addedIndex, payload, removedIndex } = dropResult;
+  const inSection = (c: Card) => !!c.done === archived;
+  const section = cards.value.filter(inSection);
+  const others = cards.value.filter((c) => !inSection(c));
+  let next: Card[];
+
+  if (removedIndex !== null && addedIndex !== null) {
+    next = applyDrag(section, dropResult);
+  } else if (removedIndex !== null) {
+    const i = section.findIndex((c) => c === payload || (payload?.id && c.id === payload.id));
+    if (i === -1) return;
+    next = section.filter((_, idx) => idx !== i);
+  } else if (addedIndex !== null) {
+    // the card may come from another column or section, so its done flag follows the target
+    next = [...section];
+    next.splice(Math.min(addedIndex, next.length), 0, { ...payload, done: archived });
+  } else {
+    return;
+  }
+
+  cards.value = archived ? [...others, ...next] : [...next, ...others];
   emit("reorderCards", props.id, cards.value);
 };
 
-const getChildPayload = (index: number) => {
-  // if we have search query, re-calculate the index
-  if (props.cardSearchQuery) {
-    console.log("Filtering cards, using relative index");
-    return filteredCards.value[index];
-  }
+const getChildPayload = (index: number) => activeCards.value[index];
+const getArchivedChildPayload = (index: number) => archivedCards.value[index];
 
-  return cards.value[index];
+const archiveOpen = ref(false);
+const activeCards = computed(() => filteredCards.value.filter((c) => !c.done));
+const archivedCards = computed(() => filteredCards.value.filter((c) => c.done));
+
+const setCardDone = (cardId: string | undefined, done: boolean) => {
+  emit("setCardDone", props.id, cardId, done);
 };
 
 const enableDragging = () => {

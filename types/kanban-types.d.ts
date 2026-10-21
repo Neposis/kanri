@@ -58,11 +58,13 @@ export declare interface Tag {
 export declare interface Card {
   color?: string;
   description?: string;
+  done?: boolean;
   dueDate?: Date | string | null;
   id?: string;
   isDueDateCounterRelative?: boolean;
   isDueDateCompleted?: boolean;
   name: string;
+  progress?: number;
   tasks?: Array<Task>;
   tags?: Array<Tag> | null;
 }

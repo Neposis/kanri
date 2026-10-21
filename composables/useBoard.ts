@@ -137,6 +137,32 @@ export function useBoard(id: string | Ref<string>) {
     });
   };
 
+  const setCardDone = (
+    columnId: string,
+    cardId: string | undefined,
+    done: boolean
+  ) => {
+    if (!board.value) return;
+    if (!cardId) return;
+
+    mutateCard(columnId, cardId, (card) => {
+      card.done = done;
+    });
+  };
+
+  const setCardProgress = (
+    columnId: string,
+    cardId: string | undefined,
+    progress: number
+  ) => {
+    if (!board.value) return;
+    if (!cardId) return;
+
+    mutateCard(columnId, cardId, (card) => {
+      card.progress = Math.min(Math.max(Math.round(progress), 0), 100);
+    });
+  };
+
   const setCardDescription = (
     columnId: string,
     cardId: string | undefined,
@@ -258,6 +284,8 @@ export function useBoard(id: string | Ref<string>) {
     mutateCard,
     reorderCards,
     setCardName,
+    setCardDone,
+    setCardProgress,
     setCardDescription,
     setCardColor,
     setCardTasks,

@@ -46,6 +46,8 @@ const kanriTagSchema = z.object({
 const kanriCardSchema = z.object({
   color: z.string().optional(),
   description: z.string().optional(),
+  done: z.boolean().optional().nullable(),
+  progress: z.number().min(0).max(100).optional().nullable(),
   id: z.string().optional(),
   name: z.string(),
   tasks: z

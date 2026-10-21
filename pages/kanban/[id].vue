@@ -51,6 +51,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
       @setCardTasks="board.setCardTasks"
       @setCardTitle="board.setCardName"
       @setCardDueDate="board.setCardDueDate"
+      @setCardProgress="board.setCardProgress"
       @setCardTags="board.setCardTags"
       @addGlobalTag="board.addGlobalTag"
       @openTagEdit="editTagModalVisible = true"
@@ -269,6 +270,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
                   @updateColumnTitle="board.setColumnTitle"
                   @updateColumnWidth="board.setColumnWidth"
                   @setCardName="board.setCardName"
+                  @setCardDone="board.setCardDone"
                   @duplicateCard="board.duplicateCard"
                   @reorderCards="board.reorderCards"
                 />

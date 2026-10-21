@@ -150,7 +150,8 @@
         "addCardTop": "Add card to the top",
         "deleteColumnAction": "Delete column",
         "deleteColumnConfirmation": "Are you sure you want to delete the column '{columnName}'? This action is irreversible.",
-        "addCardPlaceholder": "Enter a card name..."
+        "addCardPlaceholder": "Enter a card name...",
+        "archived": "Archived"
       },
       "card": {
         "deleteCardAction": "Delete card",
@@ -208,6 +209,7 @@
       "countdown": "Relative countdown",
       "dateRemove": "Remove due date",
       "descriptionTitle": "Card Description",
+      "progressTitle": "Progress",
       "taskTitle": "Tasks",
       "taskAdd": "Add Task",
       "newTaskPlaceholder": "Enter a task...",

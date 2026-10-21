@@ -288,6 +288,20 @@ limitations under the License.
         <div class="overflow-auto">
           <div class="flex flex-col pr-6">
             <h2 class="text-lg font-semibold">
+              {{ $t("modals.editCard.progressTitle") }}: {{ progress }}%
+            </h2>
+            <input
+              v-model.number="progress"
+              type="range"
+              min="0"
+              max="100"
+              step="5"
+              class="accent-accent my-2 w-full cursor-pointer"
+              @change="emit('setCardProgress', columnID, props.card?.id, progress)"
+            >
+          </div>
+          <div class="flex flex-col pr-6">
+            <h2 class="text-lg font-semibold">
               {{ $t("modals.editCard.descriptionTitle") }}
             </h2>
             <KanbanDescriptionEditor
@@ -529,6 +543,12 @@ const emit = defineEmits<{
     isCompleted: boolean
   ): void;
   (
+    e: "setCardProgress",
+    columnID: string,
+    cardId: string | undefined,
+    progress: number
+  ): void;
+  (
     e: "setCardTags",
     columnID: string,
     cardId: string | undefined,
@@ -555,6 +575,7 @@ const { locale } = useI18n();
 const columnID = ref("");
 const { textarea: titleTextArea, input: title } = useTextareaAutosize();
 const description = ref("");
+const progress = ref(0);
 const tasks: Ref<Array<{ finished: boolean; id?: string; name: string }>> = ref(
   []
 );
@@ -801,6 +822,7 @@ watch(props, (newVal) => {
 
     title.value = newVal.card.name;
     description.value = newVal.card.description || "";
+    progress.value = newVal.card.progress ?? 0;
 
     //@ts-expect-error TODO: improve due date handling/types
     dueDate.value = newVal.card.dueDate || null;
