@@ -95,6 +95,11 @@ export function useBoard(id: string | Ref<string>) {
     store.setColumnCompactProgress(board.value.id, columnId, compact);
   }
 
+  function setColumnAutoComplete(columnId: string, enabled: boolean) {
+    if (!board.value) return;
+    store.setColumnAutoComplete(board.value.id, columnId, enabled);
+  }
+
   // Cards
   function createCard(columnId: string, card: Card, addToTop?: boolean) {
     if (!board.value) return;
@@ -329,6 +334,7 @@ export function useBoard(id: string | Ref<string>) {
     setColumnTitle,
     setColumnWidth,
     setColumnCompactProgress,
+    setColumnAutoComplete,
 
     // card actions
     createCard,

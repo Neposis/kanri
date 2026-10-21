@@ -146,6 +146,7 @@
         "deleteColumnConfirmation": "Êtes-vous sûr de vouloir supprimer la colonne '{columnName}'? Cette action est irréversible.",
         "addCardPlaceholder": "Saisir l'intitulé de la carte...",
         "archived": "Archivées",
+        "autoComplete": "Terminer automatiquement les cartes déplacées ici",
         "compactProgress": "Afficher la progression en pourcentage uniquement",
         "expandProgress": "Afficher les barres de progression"
       },

@@ -146,6 +146,7 @@
         "deleteColumnConfirmation": "您确定要删除列表 '{columnName}' 吗？此操作不可逆。",
         "addCardPlaceholder": "输入卡片名称...",
         "archived": "已归档",
+        "autoComplete": "自动完成移入此处的卡片",
         "compactProgress": "仅以百分比显示进度",
         "expandProgress": "显示进度条"
       },

@@ -146,6 +146,7 @@
         "deleteColumnConfirmation": "Bist du sicher, dass du die Spalte '{columnName}' löschen möchtest? Diese Aktion ist irreversibel.",
         "addCardPlaceholder": "Name der Karte...",
         "archived": "Archiviert",
+        "autoComplete": "Hierher verschobene Karten automatisch abschließen",
         "compactProgress": "Fortschritt nur als Prozent anzeigen",
         "expandProgress": "Fortschrittsbalken anzeigen"
       },

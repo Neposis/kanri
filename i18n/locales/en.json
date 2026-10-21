@@ -152,6 +152,7 @@
         "deleteColumnConfirmation": "Are you sure you want to delete the column '{columnName}'? This action is irreversible.",
         "addCardPlaceholder": "Enter a card name...",
         "archived": "Archived",
+        "autoComplete": "Auto-complete cards moved here",
         "compactProgress": "Show progress as percentage only",
         "expandProgress": "Show progress bars"
       },

@@ -146,6 +146,7 @@
         "deleteColumnConfirmation": "Tem certeza de que deseja excluir a coluna '{columnName}'? Esta ação é irreversível.",
         "addCardPlaceholder": "Digite o nome do cartão...",
         "archived": "Arquivados",
+        "autoComplete": "Concluir automaticamente os cartões movidos para cá",
         "compactProgress": "Mostrar progresso apenas como porcentagem",
         "expandProgress": "Mostrar barras de progresso"
       },

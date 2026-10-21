@@ -41,6 +41,7 @@ export declare interface Column {
   title: string;
   width?: number;
   compactProgress?: boolean;
+  autoComplete?: boolean;
 }
 
 export declare interface Task {

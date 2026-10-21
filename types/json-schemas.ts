@@ -72,6 +72,7 @@ const kanriColumnSchema = z.object({
   title: z.string(),
   width: z.number().optional().nullable(),
   compactProgress: z.boolean().optional().nullable(),
+  autoComplete: z.boolean().optional().nullable(),
 });
 
 const kanriBoardBackgroundSchema = z

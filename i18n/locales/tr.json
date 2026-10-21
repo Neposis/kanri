@@ -146,6 +146,7 @@
         "deleteColumnConfirmation": "'{columnName}' sütununu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
         "addCardPlaceholder": "Bir kart adı girin...",
         "archived": "Arşivlenenler",
+        "autoComplete": "Buraya taşınan kartları otomatik tamamla",
         "compactProgress": "İlerlemeyi yalnızca yüzde olarak göster",
         "expandProgress": "İlerleme çubuklarını göster"
       },

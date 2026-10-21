@@ -152,6 +152,7 @@
         "deleteColumnConfirmation": "列「{columnName}」を削除してもよろしいですか？この操作は取り消せません。",
         "addCardPlaceholder": "カード名を入力...",
         "archived": "アーカイブ済み",
+        "autoComplete": "ここに移動したカードを自動的に完了",
         "compactProgress": "進捗をパーセンテージのみで表示",
         "expandProgress": "進捗バーを表示"
       },

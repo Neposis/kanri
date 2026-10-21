@@ -91,9 +91,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
             </DropdownMenuItem>
             <DropdownMenuItem
               class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
+              @click="$emit('updateColumnAutoComplete', id, !autoComplete)"
+            >
+                <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-current text-xs leading-none">{{ autoComplete ? "✓" : "" }}</span>
+                {{ $t('components.kanban.column.autoComplete') }}
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
               @click="$emit('updateColumnCompactProgress', id, !compactProgress)"
             >
-                {{ compactProgress ? $t('components.kanban.column.expandProgress') : $t('components.kanban.column.compactProgress') }}
+                <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-current text-xs leading-none">{{ compactProgress ? "" : "✓" }}</span>
+                {{ $t('components.kanban.column.expandProgress') }}
             </DropdownMenuItem>
             <DropdownMenuItem
               class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
@@ -297,6 +305,7 @@ const props = defineProps<{
   title: string;
   width?: number;
   compactProgress?: boolean;
+  autoComplete?: boolean;
   zoomLevel: number;
   addToTopButtonShown?: boolean;
   cardCountDisplayEnabled?: boolean;
@@ -330,6 +339,7 @@ const emit = defineEmits<{
   (e: "updateColumnTitle", columnId: string, title: string): void;
   (e: "updateColumnWidth", columnId: string, width: number | undefined): void;
   (e: "updateColumnCompactProgress", columnId: string, compact: boolean): void;
+  (e: "updateColumnAutoComplete", columnId: string, enabled: boolean): void;
   (e: "removeColumn", columnId: string): void;
   (e: "removeColumnNoConfirmation", columnId: string): void;
   (e: "setColumnEditIndex", columnIndex: number, eventType: string): void;
@@ -776,8 +786,18 @@ const onDrop = (archived: boolean, dropResult: any) => {
     next = section.filter((_, idx) => idx !== i);
   } else if (addedIndex !== null) {
     // the card may come from another column or section, so its done flag follows the target
+    const done = props.autoComplete ? true : archived;
+    const card = { ...payload, done };
+
+    if (done !== archived) {
+      // auto-completed card dropped on the active list belongs at the start of the archive
+      cards.value = [...cards.value.filter((c) => !c.done), card, ...cards.value.filter((c) => c.done)];
+      emit("reorderCards", props.id, cards.value);
+      return;
+    }
+
     next = [...section];
-    next.splice(Math.min(addedIndex, next.length), 0, { ...payload, done: archived });
+    next.splice(Math.min(addedIndex, next.length), 0, card);
   } else {
     return;
   }

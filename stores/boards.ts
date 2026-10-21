@@ -285,6 +285,15 @@ export const useBoardsStore = defineStore("boards", {
       col.compactProgress = compact;
       b.lastEdited = new Date();
     },
+    setColumnAutoComplete(boardId: string, columnId: string, enabled: boolean) {
+      const b = this.boardById(boardId);
+      if (!b) return;
+      const col = b.columns.find(c => c.id === columnId);
+      if (!col) return;
+
+      col.autoComplete = enabled;
+      b.lastEdited = new Date();
+    },
     updateColumn(boardId: string, column: Column) {
       const b = this.boardById(boardId);
       if (!b) return;
@@ -387,6 +396,7 @@ export const useBoardsStore = defineStore("boards", {
 
       const [card] = sourceCol.cards.splice(cardIndex, 1);
       if (card === undefined) return;
+      if (targetCol.autoComplete) card.done = true;
       targetCol.cards.push(card);
       targetBoard.lastEdited = new Date();
       sourceBoard.lastEdited = new Date();
