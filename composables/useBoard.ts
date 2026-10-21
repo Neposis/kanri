@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { computed, toValue } from "vue";
 import type { Ref } from "vue";
-import type { Board, Card, Column, Tag } from "@/types/kanban-types";
+import type { Attachment, Board, Card, Column, Tag } from "@/types/kanban-types";
 import { useBoardsStore } from "@/stores/boards";
 
 export function useBoard(id: string | Ref<string>) {
@@ -170,6 +170,33 @@ export function useBoard(id: string | Ref<string>) {
 
     mutateCard(columnId, cardId, (card) => {
       card.tasksExpanded = expanded;
+    });
+  };
+
+  const setCardAttachments = (
+    columnId: string,
+    cardId: string | undefined,
+    attachments: Array<Attachment>
+  ) => {
+    if (!board.value) return;
+    if (!cardId) return;
+
+    mutateCard(columnId, cardId, (card) => {
+      card.attachments = attachments;
+    });
+  };
+
+  const setCardPriority = (
+    columnId: string,
+    cardId: string | undefined,
+    priority: number | null
+  ) => {
+    if (!board.value) return;
+    if (!cardId) return;
+
+    mutateCard(columnId, cardId, (card) => {
+      if (priority) card.priority = priority;
+      else delete card.priority;
     });
   };
 
@@ -346,6 +373,8 @@ export function useBoard(id: string | Ref<string>) {
     setCardName,
     setCardDone,
     setCardProgress,
+    setCardAttachments,
+    setCardPriority,
     setCardProgressVisible,
     setCardProgressFromTasks,
     setCardTasksExpanded,

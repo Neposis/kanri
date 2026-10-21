@@ -44,10 +44,22 @@ const kanriTagSchema = z.object({
 });
 
 const kanriCardSchema = z.object({
+  attachments: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        file: z.string(),
+        path: z.string().optional(),
+      })
+    )
+    .optional()
+    .nullable(),
   color: z.string().optional(),
   description: z.string().optional(),
   done: z.boolean().optional().nullable(),
   progress: z.number().min(0).max(100).optional().nullable(),
+  priority: z.number().int().min(1).max(4).optional().nullable(),
   tasksExpanded: z.boolean().optional().nullable(),
   progressFromTasks: z.boolean().optional().nullable(),
   hideProgress: z.boolean().optional().nullable(),

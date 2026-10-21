@@ -57,7 +57,15 @@ export declare interface Tag {
   color?: string | null;
 }
 
+export declare interface Attachment {
+  id: string;
+  name: string;
+  file: string;
+  path?: string;
+}
+
 export declare interface Card {
+  attachments?: Array<Attachment>;
   color?: string;
   description?: string;
   done?: boolean;
@@ -66,6 +74,7 @@ export declare interface Card {
   isDueDateCounterRelative?: boolean;
   isDueDateCompleted?: boolean;
   name: string;
+  priority?: number;
   progress?: number;
   tasks?: Array<Task>;
   tasksExpanded?: boolean;

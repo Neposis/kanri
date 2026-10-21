@@ -156,6 +156,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
           @update-card-tags="updateCardTags"
           @duplicate-card="duplicateCard"
           @set-card-done="setCardDone"
+          @set-card-attachments="setCardAttachments"
           @set-card-tasks="setCardTasks"
           @set-card-tasks-expanded="setCardTasksExpanded"
         />
@@ -209,6 +210,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
             @update-card-tags="updateCardTags"
             @duplicate-card="duplicateCard"
             @set-card-done="setCardDone"
+            @set-card-attachments="setCardAttachments"
           @set-card-tasks="setCardTasks"
           @set-card-tasks-expanded="setCardTasksExpanded"
           />
@@ -288,7 +290,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
 </template>
 
 <script setup lang="ts">
-import type { Card, Tag, Task } from "@/types/kanban-types";
+import type { Attachment, Card, Tag, Task } from "@/types/kanban-types";
 import type { Ref } from "vue";
 
 import { applyDrag } from "@/utils/drag-n-drop";
@@ -347,6 +349,12 @@ const emit = defineEmits<{
   (e: "duplicateCard", columnId: string, cardId: string | undefined): void;
   (e: "reorderCards", columnId: string, newCardsOrder: Array<Card>): void;
   (e: "setCardDone", columnId: string, cardId: string | undefined, done: boolean): void;
+  (
+    e: "setCardAttachments",
+    columnId: string,
+    cardId: string | undefined,
+    attachments: Array<Attachment>
+  ): void;
   (e: "setCardTasks", columnId: string, cardId: string | undefined, tasks: Array<Task>): void;
   (e: "setCardTasksExpanded", columnId: string, cardId: string | undefined, expanded: boolean): void;
 }>();
@@ -812,6 +820,10 @@ const getArchivedChildPayload = (index: number) => archivedCards.value[index];
 const archiveOpen = ref(false);
 const activeCards = computed(() => filteredCards.value.filter((c) => !c.done));
 const archivedCards = computed(() => filteredCards.value.filter((c) => c.done));
+
+const setCardAttachments = (cardId: string | undefined, attachments: Array<Attachment>) => {
+  emit("setCardAttachments", props.id, cardId, attachments);
+};
 
 const setCardDone = (cardId: string | undefined, done: boolean) => {
   emit("setCardDone", props.id, cardId, done);

@@ -27,7 +27,10 @@ limitations under the License.
     "
   >
     <template #content>
-      <div class="flex h-[40rem] w-[36rem] flex-col pl-2">
+      <div
+        class="flex flex-col pl-2"
+        style="width: clamp(36rem, 38vw, 46rem); height: clamp(40rem, 82vh, 70rem); max-width: calc(100vw - 6rem); max-height: calc(100vh - 4rem)"
+      >
         <div class="mb-4">
           <div class="flex flex-row items-start justify-between gap-12">
             <div
@@ -199,7 +202,7 @@ limitations under the License.
               <h1
                 v-if="!titleEditing"
                 :v-model="title"
-                class="text-no-overflow pointer-events-auto min-w-[64px] max-w-[475px] pr-5 text-2xl font-bold"
+                class="text-no-overflow pointer-events-auto min-w-[64px] max-w-full pr-5 text-2xl font-bold"
                 @click="enableTitleEditing()"
               >
                 {{ title }}
@@ -209,7 +212,7 @@ limitations under the License.
                 ref="titleTextArea"
                 v-model="title"
                 v-focus
-                class="bg-elevation-2 text-normal border-accent-focus pointer-events-auto w-[450px] text-xl focus:border-2 focus:border-dotted focus:outline-none"
+                class="bg-elevation-2 text-normal border-accent-focus pointer-events-auto w-full text-xl focus:border-2 focus:border-dotted focus:outline-none"
                 maxlength="1000"
                 type="text"
                 @blur="updateTitle"
@@ -286,6 +289,29 @@ limitations under the License.
         </div>
 
         <div class="overflow-auto">
+          <div class="mb-2 flex flex-row items-center gap-2 pr-6">
+            <h2 class="text-lg font-semibold">
+              {{ $t("modals.editCard.priorityTitle") }}
+            </h2>
+            <div class="ml-auto flex flex-row gap-1">
+              <button
+                v-for="level in 4"
+                :key="level"
+                class="rounded-md px-2 py-0.5 text-sm font-bold"
+                :class="[priorityButtonClasses[level], { 'ring-2 ring-current': priority === level }]"
+                @click="setPriority(level)"
+              >
+                P{{ level }}
+              </button>
+              <button
+                class="bg-elevation-2 bg-elevation-3-hover rounded-md px-2 py-0.5 text-sm"
+                :class="{ 'ring-accent ring-2': !priority }"
+                @click="setPriority(null)"
+              >
+                {{ $t("modals.editCard.priorityNone") }}
+              </button>
+            </div>
+          </div>
           <div class="flex flex-col pr-6">
             <div class="flex flex-row items-center gap-2">
               <h2 class="text-lg font-semibold">
@@ -329,6 +355,14 @@ limitations under the License.
               <span v-if="tasks.length !== 0" class="text-dim-1 text-sm"
                 >({{ getCheckedTaskNumber }}/{{ tasks.length }})</span
               >
+              <button
+                v-if="!taskAddMode"
+                class="bg-elevation-2 bg-elevation-3-hover flex items-center gap-1 rounded-md py-0.5 pl-1 pr-2 text-sm"
+                @click="enableTaskAddMode"
+              >
+                <PlusIcon class="text-accent size-4" />
+                <span>{{ $t("modals.editCard.taskAdd") }}</span>
+              </button>
               <label
                 v-if="tasks.length !== 0"
                 class="ml-auto mr-6 flex cursor-pointer items-center gap-1.5 text-sm"
@@ -342,17 +376,6 @@ limitations under the License.
                 {{ $t("modals.editCard.useTasksAsProgress") }}
               </label>
             </div>
-            <ProgressRoot
-              v-if="tasks"
-              v-model="getTaskPercentage"
-              class="bg-elevation-2 relative mb-4 h-2 w-[96%] overflow-hidden rounded-full"
-              style="transform: translateZ(0)"
-            >
-              <ProgressIndicator
-                class="ease-[cubic-bezier(0.65, 0, 0.35, 1)] bg-accent-no-hover size-full rounded-full transition-transform duration-[660ms]"
-                :style="`transform: translateX(-${100 - getTaskPercentage}%)`"
-              />
-            </ProgressRoot>
             <div class="flex w-full flex-col gap-1">
               <div
                 v-if="tasks && tasks.length !== 0"
@@ -463,32 +486,9 @@ limitations under the License.
                 maxlength="1000"
                 :placeholder="$t('modals.editCard.newTaskPlaceholder')"
                 type="text"
+                @blur="cancelTaskAdd"
                 @keypress.enter="createTask"
               />
-              <div v-if="taskAddMode" class="ml-0.5 mt-0.5 flex flex-row gap-4">
-                <button
-                  class="bg-accent text-buttons rounded-md px-4 py-1"
-                  @click="createTask"
-                >
-                  {{ $t("general.addAction") }}
-                </button>
-                <button
-                  @click="
-                    taskAddMode = false;
-                    newTaskName = '';
-                  "
-                >
-                  {{ $t("general.cancelAction") }}
-                </button>
-              </div>
-              <button
-                v-if="!taskAddMode"
-                class="bg-elevation-1 bg-elevation-2-hover mr-8 mt-1 flex h-min w-[96%] cursor-pointer flex-row items-center gap-2 rounded-md py-1 pl-0.5 pr-2"
-                @click="enableTaskAddMode"
-              >
-                <PlusIcon class="text-accent size-6" />
-                <span>{{ $t("modals.editCard.taskAdd") }}</span>
-              </button>
             </div>
           </div>
           <div class="mt-4 flex flex-col pr-6">
@@ -510,6 +510,130 @@ limitations under the License.
               {{ $t("modals.editCard.tagsEdit") }}
             </button>
           </div>
+          <div class="mb-2 mt-4 flex flex-col pr-6">
+            <div class="flex flex-row items-center gap-2">
+              <h2 class="text-lg font-semibold">
+                {{ $t("modals.editCard.attachmentsTitle") }}
+              </h2>
+              <span v-if="attachments.length !== 0" class="text-dim-1 text-sm"
+                >({{ attachments.length }})</span
+              >
+            </div>
+            <div
+              v-if="imageAttachments.length !== 0"
+              class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(110px,1fr))] gap-2"
+            >
+              <div
+                v-for="attachment in imageAttachments"
+                :key="attachment.id"
+                class="group relative aspect-video cursor-pointer"
+                @click="previewAttachment = attachment; hoveredAttachment = null"
+                @mouseenter="onAttachmentEnter($event, attachment)"
+                @mouseleave="hoveredAttachment = null"
+              >
+                <KanbanAttachmentThumb
+                  v-if="attachmentUrls[attachment.id] && !isAttachmentMissing(attachment)"
+                  class="size-full"
+                  :alt="attachment.name"
+                  :file="attachment.file"
+                  :src="attachmentUrls[attachment.id]"
+                />
+                <div
+                  v-else-if="isAttachmentMissing(attachment)"
+                  class="bg-elevation-2 flex size-full flex-col items-center justify-center gap-1 rounded-md px-1 text-center text-xs"
+                  :title="attachmentTitle(attachment)"
+                >
+                  <PhWarning class="size-5 text-yellow-500" />
+                  <span class="w-full truncate">{{ attachment.name }}</span>
+                </div>
+                <PhLink
+                  v-if="attachment.path"
+                  class="absolute right-1 top-1 size-4 rounded bg-black/60 p-0.5 text-white group-hover:hidden"
+                />
+                <div class="absolute right-1 top-1 hidden gap-1 group-hover:flex">
+                  <button
+                    class="rounded bg-black/60 p-0.5 text-white"
+                    @click.stop="openAttachment(attachment)"
+                  >
+                    <PhFolderOpen class="size-4" />
+                  </button>
+                  <button
+                    class="rounded bg-black/60 p-0.5 text-white"
+                    @click.stop="removeAttachment(attachment)"
+                  >
+                    <XMarkIcon class="size-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div v-if="fileAttachments.length !== 0" class="mt-2 flex flex-col gap-1">
+              <div
+                v-for="attachment in fileAttachments"
+                :key="attachment.id"
+                class="bg-elevation-2 bg-elevation-3-hover flex cursor-pointer flex-row items-center gap-2 rounded-md px-2 py-1"
+                :class="{ 'opacity-60': isAttachmentMissing(attachment) }"
+                :title="attachmentTitle(attachment)"
+                @click="openAttachment(attachment)"
+              >
+                <PhWarning
+                  v-if="isAttachmentMissing(attachment)"
+                  class="size-5 shrink-0 text-yellow-500"
+                />
+                <PhLink v-else-if="attachment.path" class="size-5 shrink-0" />
+                <PhFile v-else class="size-5 shrink-0" />
+                <span
+                  class="w-full truncate"
+                  :class="{ 'line-through': isAttachmentMissing(attachment) }"
+                  >{{ attachment.name }}</span
+                >
+                <PhFolderOpen class="text-dim-2 size-4 shrink-0" />
+                <button
+                  class="shrink-0"
+                  @click.stop="removeAttachment(attachment)"
+                >
+                  <XMarkIcon class="text-dim-2 text-accent-hover size-4" />
+                </button>
+              </div>
+            </div>
+            <div class="mt-2 flex w-[96%] flex-row gap-2">
+              <button
+                class="bg-elevation-1 bg-elevation-2-hover flex h-min min-w-0 flex-1 cursor-pointer flex-row items-center gap-2 rounded-md py-1 pl-0.5 pr-2"
+                @click="addAttachments('copy')"
+              >
+                <PlusIcon class="text-accent size-6 shrink-0" />
+                <span class="truncate">{{ $t("modals.editCard.attachmentAdd") }}</span>
+              </button>
+              <button
+                class="bg-elevation-1 bg-elevation-2-hover flex h-min min-w-0 flex-1 cursor-pointer flex-row items-center gap-2 rounded-md px-2 py-1"
+                :title="$t('modals.editCard.attachmentLinkHint')"
+                @click="addAttachments('link')"
+              >
+                <PhLink class="text-accent size-5 shrink-0" />
+                <span class="truncate">{{ $t("modals.editCard.attachmentLink") }}</span>
+              </button>
+            </div>
+          </div>
+          <Teleport to="body">
+            <Transition name="attachment-preview">
+              <img
+                v-if="hoveredAttachment && attachmentUrls[hoveredAttachment.id]"
+                :src="attachmentUrls[hoveredAttachment.id]"
+                class="pointer-events-none fixed z-[10000001] max-h-80 max-w-md rounded-md object-contain shadow-2xl"
+                :style="previewStyle"
+              >
+            </Transition>
+            <div
+              v-if="previewAttachment && attachmentUrls[previewAttachment.id]"
+              class="fixed inset-0 z-[10000001] flex cursor-zoom-out items-center justify-center bg-black/80 p-8"
+              @click="previewAttachment = null"
+            >
+              <img
+                :src="attachmentUrls[previewAttachment.id]"
+                :alt="previewAttachment.name"
+                class="max-h-full max-w-full rounded-md object-contain"
+              />
+            </div>
+          </Teleport>
         </div>
       </div>
     </template>
@@ -517,7 +641,7 @@ limitations under the License.
 </template>
 
 <script setup lang="ts">
-import type { Card, Task, Tag } from "@/types/kanban-types";
+import type { Attachment, Card, Task, Tag } from "@/types/kanban-types";
 import type { Ref } from "vue";
 
 import emitter from "@/utils/emitter";
@@ -527,6 +651,10 @@ import { CheckIcon, PlusIcon, XMarkIcon } from "@heroicons/vue/24/solid";
 import {
   PhCalendar,
   PhCheck,
+  PhFile,
+  PhFolderOpen,
+  PhLink,
+  PhWarning,
   PhPencilSimple,
   PhTrash,
   PhX,
@@ -565,6 +693,18 @@ const emit = defineEmits<{
     dueDate: Date | null,
     isCounterRelative: boolean,
     isCompleted: boolean
+  ): void;
+  (
+    e: "setCardAttachments",
+    columnID: string,
+    cardId: string | undefined,
+    attachments: Array<Attachment>
+  ): void;
+  (
+    e: "setCardPriority",
+    columnID: string,
+    cardId: string | undefined,
+    priority: number | null
   ): void;
   (
     e: "setCardProgress",
@@ -606,7 +746,7 @@ const emit = defineEmits<{
   (e: "openTagEdit"): void;
 }>();
 
-const { locale } = useI18n();
+const { locale, t } = useI18n();
 
 const columnID = ref("");
 const { textarea: titleTextArea, input: title } = useTextareaAutosize();
@@ -614,6 +754,87 @@ const description = ref("");
 const progress = ref(0);
 const progressFromTasks = ref(true);
 const progressVisible = ref(true);
+const priority: Ref<number | null> = ref(null);
+const priorityButtonClasses: Record<number, string> = {
+  1: "bg-red-500/25 text-red-400",
+  2: "bg-orange-500/25 text-orange-400",
+  3: "bg-yellow-500/25 text-yellow-400",
+  4: "bg-sky-500/25 text-sky-400",
+};
+const setPriority = (level: number | null) => {
+  priority.value = level;
+  emit("setCardPriority", columnID.value, props.card?.id, level);
+};
+const attachments: Ref<Array<Attachment>> = ref([]);
+const attachmentUrls: Ref<Record<string, string>> = ref({});
+const previewAttachment: Ref<Attachment | null> = ref(null);
+const hoveredAttachment: Ref<Attachment | null> = ref(null);
+const previewStyle = ref<Record<string, string>>({});
+
+const onAttachmentEnter = (event: MouseEvent, attachment: Attachment) => {
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const width = 448;
+  const left = Math.min(Math.max(rect.left + rect.width / 2 - width / 2, 8), window.innerWidth - width - 8);
+  // opens above the thumbnail unless there is no room, then below
+  previewStyle.value =
+    rect.top > 340
+      ? { bottom: `${window.innerHeight - rect.top + 8}px`, left: `${left}px` }
+      : { top: `${rect.bottom + 8}px`, left: `${left}px` };
+  hoveredAttachment.value = attachment;
+};
+const { attachmentExists, deleteAttachmentFile, getAttachmentUrl, pickAndStoreAttachments, revealAttachment } =
+  useAttachments();
+const imageAttachments = computed(() =>
+  attachments.value.filter((a) => isImageFile(a.file))
+);
+const fileAttachments = computed(() =>
+  attachments.value.filter((a) => !isImageFile(a.file))
+);
+
+const openAttachment = async (attachment: Attachment) => {
+  if (await revealAttachment(attachment)) return;
+
+  attachments.value = attachments.value.filter((a) => a.id !== attachment.id);
+  emit("setCardAttachments", columnID.value, props.card?.id, attachments.value);
+};
+
+// drops entries whose stored file has been deleted outside the app
+const pruneMissingAttachments = async () => {
+  const list = attachments.value;
+  const present = await Promise.all(list.map(attachmentExists));
+  if (present.every(Boolean)) return;
+
+  attachments.value = list.filter((_, i) => present[i]);
+  emit("setCardAttachments", columnID.value, props.card?.id, attachments.value);
+};
+
+const resolveAttachmentUrls = async () => {
+  for (const attachment of imageAttachments.value) {
+    if (!attachmentUrls.value[attachment.id]) {
+      attachmentUrls.value[attachment.id] = await getAttachmentUrl(attachment);
+    }
+  }
+};
+
+const addAttachments = async (mode: "copy" | "link") => {
+  const added = await pickAndStoreAttachments(mode);
+  if (added.length === 0) return;
+
+  attachments.value = [...attachments.value, ...added];
+  emit("setCardAttachments", columnID.value, props.card?.id, attachments.value);
+  resolveAttachmentUrls();
+};
+
+const attachmentTitle = (attachment: Attachment) =>
+  isAttachmentMissing(attachment)
+    ? `${attachment.name} (${t("modals.editCard.attachmentMissing")})`
+    : attachment.path ?? attachment.name;
+
+const removeAttachment = async (attachment: Attachment) => {
+  attachments.value = attachments.value.filter((a) => a.id !== attachment.id);
+  emit("setCardAttachments", columnID.value, props.card?.id, attachments.value);
+  await deleteAttachmentFile(attachment);
+};
 const progressSyncActive = computed(
   () => progressFromTasks.value && tasks.value.length > 0
 );
@@ -724,8 +945,18 @@ const closeModalAndOpenTagEdit = () => {
   });
 };
 
+const cancelTaskAdd = () => {
+  taskAddMode.value = false;
+  newTaskName.value = "";
+};
+
 const createTask = () => {
-  if (newTaskName.value == null || !/\S/.test(newTaskName.value)) return;
+  if (newTaskName.value == null || !/\S/.test(newTaskName.value)) {
+    // pressing enter on an empty field ends the add-another loop
+    taskAddMode.value = false;
+    newTaskName.value = "";
+    return;
+  }
 
   tasks.value.push({
     finished: false,
@@ -733,7 +964,6 @@ const createTask = () => {
     name: newTaskName.value,
   });
   newTaskName.value = "";
-  taskAddMode.value = false;
 
   updateCardTasks();
 };
@@ -880,7 +1110,9 @@ watch(props, (newVal) => {
     progress.value = newVal.card.progress ?? 0;
     progressFromTasks.value = newVal.card.progressFromTasks ?? true;
     progressVisible.value = !newVal.card.hideProgress;
-
+    priority.value = newVal.card.priority ?? null;
+    attachments.value = newVal.card.attachments ?? [];
+    pruneMissingAttachments().then(resolveAttachmentUrls);
     //@ts-expect-error TODO: improve due date handling/types
     dueDate.value = newVal.card.dueDate || null;
     isDueDateCounterRelative.value =
@@ -1044,6 +1276,17 @@ watch(props, (newVal) => {
 </style>
 
 <style scoped>
+.attachment-preview-enter-active,
+.attachment-preview-leave-active {
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.attachment-preview-enter-from,
+.attachment-preview-leave-to {
+  opacity: 0;
+  transform: translateY(8px) scale(0.9);
+}
+
 textarea {
   -ms-overflow-style: none;
   scrollbar-width: none;

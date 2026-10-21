@@ -71,41 +71,52 @@ limitations under the License.
               class="bg-elevation-3 h-1.5 flex-1 overflow-hidden rounded-full"
             >
               <div
-                class="h-full rounded-full bg-green-500 transition-all duration-300"
+                class="h-full rounded-full transition-all duration-300"
+                :class="progressColor.bar"
                 :style="{ width: `${card.progress}%` }"
               />
             </div>
-            <span class="shrink-0 text-xs font-semibold text-green-500">
+            <span class="shrink-0 text-xs font-semibold" :class="progressColor.text">
               {{ card.progress }}%
             </span>
           </div>
-          <p
-            class="text-no-overflow mr-2 w-full min-w-[28px]"
+          <div
+            class="mr-2 flex w-full min-w-[28px] flex-row items-start gap-2"
             :class="{ 'order-1 mt-1 basis-full': hasProgress }"
           >
-            <ClickCounter
-              v-if="!cardNameEditMode"
-              @double-click="enableCardEditMode"
-              @single-click="$emit('openEditCardModal', card)"
+            <p class="text-no-overflow min-w-0 flex-1">
+              <ClickCounter
+                v-if="!cardNameEditMode"
+                @double-click="enableCardEditMode"
+                @single-click="$emit('openEditCardModal', card)"
+              >
+                <hr v-if="name === '---'" class="mt-0.5" >
+                <p v-else ref="cardNameText">
+                  {{ name }}
+                </p>
+              </ClickCounter>
+              <textarea
+                v-else
+                ref="cardNameInput"
+                v-model="name"
+                v-focus
+                v-resizable
+                class="bg-elevation-3 text-normal m-0 size-full resize-none rounded-sm p-0 focus:outline-none"
+                maxlength="1000"
+                type="text"
+                @blur="updateCardName"
+                @keypress.enter="updateCardName"
+              />
+            </p>
+            <span
+              v-if="card.priority && name !== '---'"
+              class="mt-[2px] shrink-0 rounded-md px-1.5 text-xs font-bold leading-5"
+              :class="priorityClass"
+              @click="$emit('openEditCardModal', card)"
             >
-              <hr v-if="name === '---'" class="mt-0.5" >
-              <p v-else ref="cardNameText">
-                {{ name }}
-              </p>
-            </ClickCounter>
-            <textarea
-              v-else
-              ref="cardNameInput"
-              v-model="name"
-              v-focus
-              v-resizable
-              class="bg-elevation-3 text-normal m-0 size-full resize-none rounded-sm p-0 focus:outline-none"
-              maxlength="1000"
-              type="text"
-              @blur="updateCardName"
-              @keypress.enter="updateCardName"
-            />
-          </p>
+              P{{ card.priority }}
+            </span>
+          </div>
         </div>
 
         <div
@@ -195,6 +206,111 @@ limitations under the License.
             <span :class="{ 'line-through opacity-60': task.finished }">{{ task.name }}</span>
           </label>
         </div>
+
+        <div
+          v-if="stackedAttachments.length > 0"
+          class="flex flex-row items-center pt-1"
+          @mouseleave="hoveredAttachment = null"
+        >
+          <div
+            v-for="(attachment, index) in stackedAttachments"
+            :key="attachment.id"
+            class="border-elevation-1 relative h-9 w-14 shrink-0 cursor-zoom-in rounded-md border-2 shadow-md transition-transform duration-150 hover:-translate-y-1"
+            :class="{ '-ml-9': index > 0 }"
+            :style="{ zIndex: stackedAttachments.length - index }"
+            @click.stop="openFullscreen(attachment)"
+            @mouseenter="onAttachmentEnter($event, attachment)"
+          >
+            <KanbanAttachmentThumb
+              v-if="attachmentUrls[attachment.id]"
+              class="size-full"
+              :file="attachment.file"
+              :src="attachmentUrls[attachment.id]"
+            />
+            <PhLink
+              v-if="attachment.path"
+              class="absolute right-0.5 top-0.5 size-3 rounded-sm bg-black/60 p-px text-white"
+            />
+          </div>
+          <span
+            v-if="imageAttachments.length > stackedAttachments.length"
+            class="text-dim-1 ml-2 text-xs"
+            >+{{ imageAttachments.length - stackedAttachments.length }}</span
+          >
+        </div>
+        <div v-if="fileAttachments.length > 0" class="task-list w-fit min-w-0 max-w-full pt-1">
+          <div
+            ref="fileRow"
+            class="file-row flex flex-row gap-1 overflow-x-auto"
+            @scroll="updateFileScroll"
+            @wheel="onFileRowWheel"
+          >
+            <button
+              v-for="attachment in fileAttachments"
+              :key="attachment.id"
+              class="bg-elevation-2 bg-elevation-3-hover flex max-w-[7rem] shrink-0 items-center gap-1 rounded-md px-1.5 py-1"
+              :class="[taskTextClass, { 'opacity-60': isAttachmentMissing(attachment) }]"
+              :title="
+                isAttachmentMissing(attachment)
+                  ? `${attachment.name} (${$t('modals.editCard.attachmentMissing')})`
+                  : (attachment.path ?? attachment.name)
+              "
+              @click.stop="openAttachment(attachment)"
+            >
+              <PhWarning
+                v-if="isAttachmentMissing(attachment)"
+                class="shrink-0 text-yellow-500"
+                :class="iconSizeClass"
+              />
+              <PhLink v-else-if="attachment.path" class="shrink-0" :class="iconSizeClass" />
+              <PhFile v-else class="shrink-0" :class="iconSizeClass" />
+              <span
+                class="truncate"
+                :class="{ 'line-through': isAttachmentMissing(attachment) }"
+                >{{ attachment.name }}</span
+              >
+            </button>
+          </div>
+          <div
+            v-if="fileScroll.canScroll"
+            ref="fileTrack"
+            class="relative mt-1 h-1 cursor-pointer rounded-full bg-black/25"
+            @click.stop
+            @pointerdown.stop.prevent="onFileTrackDown"
+            @pointermove="onFileTrackMove"
+            @pointerup="onFileTrackUp"
+            @pointercancel="onFileTrackUp"
+          >
+            <div
+              class="bg-accent absolute top-0 h-full rounded-full opacity-80 hover:opacity-100"
+              :style="{
+                left: `${fileScroll.thumbLeft}%`,
+                width: `${fileScroll.thumbWidth}%`,
+              }"
+            />
+          </div>
+        </div>
+        <Teleport to="body">
+          <Transition name="attachment-preview">
+            <img
+              v-if="hoveredAttachment && attachmentUrls[hoveredAttachment.id]"
+              :src="attachmentUrls[hoveredAttachment.id]"
+              class="pointer-events-none fixed z-[1000] max-h-64 max-w-[20rem] rounded-md object-contain shadow-2xl"
+              :style="previewStyle"
+            >
+          </Transition>
+          <div
+            v-if="fullscreenAttachment && attachmentUrls[fullscreenAttachment.id]"
+            class="fixed inset-0 z-[10000001] flex cursor-zoom-out items-center justify-center bg-black/80 p-8"
+            @click.stop="fullscreenAttachment = null"
+          >
+            <img
+              :src="attachmentUrls[fullscreenAttachment.id]"
+              :alt="fullscreenAttachment.name"
+              class="max-h-full max-w-full rounded-md object-contain"
+            >
+          </div>
+        </Teleport>
       </div>
     </ContextMenuTrigger>
     <ContextMenuPortal to=".default-layout">
@@ -227,13 +343,16 @@ limitations under the License.
 </template>
 
 <script setup lang="ts">
-import type { Card, Tag, Task } from "@/types/kanban-types";
+import type { Attachment, Card, Tag, Task } from "@/types/kanban-types";
 
 import { getContrast } from "~/utils/colorUtils";
 import {
   PhCheckCircle,
   PhCaretDown,
   PhCircle,
+  PhFile,
+  PhLink,
+  PhWarning,
   PhChecks,
   PhClock,
   PhListChecks,
@@ -266,6 +385,7 @@ const emit = defineEmits<{
   ): void;
   (e: "setCardName", cardId: string | undefined, name: string): void;
   (e: "setCardDone", cardId: string | undefined, done: boolean): void;
+  (e: "setCardAttachments", cardId: string | undefined, attachments: Array<Attachment>): void;
   (e: "setCardTasks", cardId: string | undefined, tasks: Array<Task>): void;
   (e: "setCardTasksExpanded", cardId: string | undefined, expanded: boolean): void;
   (e: "updateCardTags", cardId: string | undefined, tags: Array<Tag>): void;
@@ -293,6 +413,179 @@ const cardNameEditMode = ref(false);
 const cardNameInput: Ref<HTMLTextAreaElement | null> = ref(null);
 const cardNameText: Ref<HTMLParagraphElement | null> = ref(null);
 
+const { attachmentExists, getAttachmentUrl, revealAttachment } = useAttachments();
+
+const removeMissingAttachment = (attachment: Attachment) => {
+  emit(
+    "setCardAttachments",
+    props.card.id,
+    (props.card.attachments ?? []).filter((a) => a.id !== attachment.id)
+  );
+};
+
+const openAttachment = async (attachment: Attachment) => {
+  if (!(await revealAttachment(attachment))) removeMissingAttachment(attachment);
+};
+
+// drops entries whose stored file has been deleted outside the app
+const pruneMissingAttachments = async () => {
+  const list = props.card.attachments ?? [];
+  if (list.length === 0) return;
+
+  const present = await Promise.all(list.map(attachmentExists));
+  if (present.every(Boolean)) return;
+  emit(
+    "setCardAttachments",
+    props.card.id,
+    list.filter((_, i) => present[i])
+  );
+};
+onMounted(pruneMissingAttachments);
+const attachmentUrls: Ref<Record<string, string>> = ref({});
+const hoveredAttachment: Ref<Attachment | null> = ref(null);
+const previewStyle = ref<Record<string, string>>({});
+const imageAttachments = computed(() =>
+  (props.card.attachments ?? []).filter(
+    (a) => isImageFile(a.file) && !isAttachmentMissing(a)
+  )
+);
+const fileAttachments = computed(() =>
+  (props.card.attachments ?? []).filter(
+    (a) => !isImageFile(a.file) || isAttachmentMissing(a)
+  )
+);
+const stackedAttachments = computed(() => imageAttachments.value.slice(0, 4));
+
+watch(
+  () => props.card.attachments,
+  async () => {
+    for (const attachment of imageAttachments.value) {
+      if (!attachmentUrls.value[attachment.id]) {
+        attachmentUrls.value[attachment.id] = await getAttachmentUrl(attachment);
+      }
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+const priorityClasses: Record<number, string> = {
+  1: "bg-red-500/25 text-red-400",
+  2: "bg-orange-500/25 text-orange-400",
+  3: "bg-yellow-500/25 text-yellow-400",
+  4: "bg-sky-500/25 text-sky-400",
+};
+const priorityClass = computed(() => priorityClasses[props.card.priority ?? 0] ?? "");
+
+const progressColor = computed(() => {
+  const value = props.card.progress ?? 0;
+  if (value >= 100) return { bar: "bg-green-500", text: "text-green-500" };
+  if (value >= 75) return { bar: "bg-lime-500", text: "text-lime-500" };
+  if (value >= 50) return { bar: "bg-yellow-500", text: "text-yellow-500" };
+  if (value >= 25) return { bar: "bg-orange-500", text: "text-orange-500" };
+  return { bar: "bg-red-500", text: "text-red-500" };
+});
+
+const fileRow: Ref<HTMLDivElement | null> = ref(null);
+const fileTrack: Ref<HTMLDivElement | null> = ref(null);
+const fileScroll = ref({ canScroll: false, thumbLeft: 0, thumbWidth: 100 });
+let fileDrag: { startScroll: number; startX: number } | null = null;
+
+const updateFileScroll = () => {
+  const el = fileRow.value;
+  if (!el || el.scrollWidth <= el.clientWidth + 1) {
+    fileScroll.value = { canScroll: false, thumbLeft: 0, thumbWidth: 100 };
+    return;
+  }
+  const thumbWidth = Math.max((el.clientWidth / el.scrollWidth) * 100, 10);
+  const maxScroll = el.scrollWidth - el.clientWidth;
+  fileScroll.value = {
+    canScroll: true,
+    thumbLeft: (el.scrollLeft / maxScroll) * (100 - thumbWidth),
+    thumbWidth,
+  };
+};
+
+const onFileTrackDown = (event: PointerEvent) => {
+  const el = fileRow.value;
+  const track = fileTrack.value;
+  if (!el || !track) return;
+
+  track.setPointerCapture(event.pointerId);
+  const rect = track.getBoundingClientRect();
+  const maxScroll = el.scrollWidth - el.clientWidth;
+  const thumbPx = (fileScroll.value.thumbWidth / 100) * rect.width;
+  const thumbStartPx = (fileScroll.value.thumbLeft / 100) * rect.width;
+  const clickX = event.clientX - rect.left;
+
+  // clicking outside the thumb jumps there, then dragging continues from that point
+  if (clickX < thumbStartPx || clickX > thumbStartPx + thumbPx) {
+    el.scrollLeft = ((clickX - thumbPx / 2) / (rect.width - thumbPx)) * maxScroll;
+  }
+  fileDrag = { startScroll: el.scrollLeft, startX: event.clientX };
+};
+
+const onFileTrackMove = (event: PointerEvent) => {
+  const el = fileRow.value;
+  const track = fileTrack.value;
+  if (!fileDrag || !el || !track) return;
+
+  const trackWidth = track.getBoundingClientRect().width;
+  const thumbPx = (fileScroll.value.thumbWidth / 100) * trackWidth;
+  const maxScroll = el.scrollWidth - el.clientWidth;
+  el.scrollLeft =
+    fileDrag.startScroll +
+    ((event.clientX - fileDrag.startX) / (trackWidth - thumbPx)) * maxScroll;
+};
+
+const onFileTrackUp = (event: PointerEvent) => {
+  fileDrag = null;
+  fileTrack.value?.releasePointerCapture(event.pointerId);
+};
+
+watch(fileAttachments, () => nextTick(updateFileScroll), { immediate: true });
+watch(fileRow, (el) => {
+  if (!el) return;
+  new ResizeObserver(updateFileScroll).observe(el);
+  updateFileScroll();
+});
+
+// lets a regular mouse wheel scroll the row sideways
+const onFileRowWheel = (event: WheelEvent) => {
+  const el = event.currentTarget as HTMLElement;
+  if (el.scrollWidth <= el.clientWidth || event.deltaX !== 0) return;
+  el.scrollLeft += event.deltaY;
+  event.preventDefault();
+};
+
+const fullscreenAttachment: Ref<Attachment | null> = ref(null);
+
+const openFullscreen = (attachment: Attachment) => {
+  hoveredAttachment.value = null;
+  fullscreenAttachment.value = attachment;
+};
+
+const closeFullscreenOnEscape = (event: KeyboardEvent) => {
+  if (event.key === "Escape") fullscreenAttachment.value = null;
+};
+
+watch(fullscreenAttachment, (value) => {
+  if (value) window.addEventListener("keydown", closeFullscreenOnEscape);
+  else window.removeEventListener("keydown", closeFullscreenOnEscape);
+});
+
+onBeforeUnmount(() =>
+  window.removeEventListener("keydown", closeFullscreenOnEscape)
+);
+
+const onAttachmentEnter = (event: MouseEvent, attachment: Attachment) => {
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const left = Math.min(Math.max(rect.left + rect.width / 2 - 160, 8), window.innerWidth - 328);
+  previewStyle.value = {
+    bottom: `${window.innerHeight - rect.top + 8}px`,
+    left: `${left}px`,
+  };
+  hoveredAttachment.value = attachment;
+};
 watch(
   props,
   (_, newData) => {
@@ -575,6 +868,25 @@ const updateCardName = () => {
 </script>
 
 <style scoped>
+.file-row {
+  scrollbar-width: none;
+}
+
+.file-row::-webkit-scrollbar {
+  display: none;
+}
+
+.attachment-preview-enter-active,
+.attachment-preview-leave-active {
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.attachment-preview-enter-from,
+.attachment-preview-leave-to {
+  opacity: 0;
+  transform: translateY(8px) scale(0.9);
+}
+
 .kanban-card {
   transition-duration: 550ms;
   transition-timing-function: ease-out;
