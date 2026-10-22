@@ -8,10 +8,10 @@
       v-if="displaySrc"
       :src="displaySrc"
       :alt="alt"
-      class="h-full w-full object-cover"
+      class="size-full object-cover"
       decoding="async"
       draggable="false"
-    />
+    >
     <span
       v-if="isGif && !hovered"
       class="absolute bottom-1 left-1 rounded bg-black/60 px-1 text-[10px] font-semibold leading-4 text-white"

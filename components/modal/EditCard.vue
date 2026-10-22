@@ -40,7 +40,7 @@ limitations under the License.
                 <Tooltip direction="top" :label="$t('modals.editCard.tooltip')">
                   <template #trigger>
                     <button
-                      class="size-7 rounded-full flex items-center justify-center"
+                      class="flex size-7 items-center justify-center rounded-full"
                       :class="[isCustomColor ? '' : selectedColor]"
                       :style="{
                         'background-color': isCustomColor ? customColor : '',
@@ -192,7 +192,7 @@ limitations under the License.
                           v-model="customColor"
                           class="w-20"
                           type="color"
-                        />
+                        >
                         <HexColorInput v-model="customColor" />
                       </div>
                     </div>
@@ -253,7 +253,7 @@ limitations under the License.
               <template #footer>
                 <div class="w-full px-4 pb-3">
                   <div class="mt-2 flex flex-col gap-2">
-                    <div class="flex flex-row items-center gap-6 mb-2">
+                    <div class="mb-2 flex flex-row items-center gap-6">
                       <SwitchRoot
                         v-model:checked="isDueDateCounterRelative"
                         class="bg-elevation-2 bg-accent-checked relative flex h-[24px] w-[42px] cursor-pointer rounded-full shadow-sm focus-within:outline focus-within:outline-black"
@@ -379,15 +379,15 @@ limitations under the License.
             <div class="flex w-full flex-col gap-1">
               <div
                 v-if="tasks && tasks.length !== 0"
-                class="flex max-h-[250px] w-[calc(100%-17px)] flex-col gap-4 overflow-auto pl-1 pr-4 resize-y"
+                class="flex max-h-[250px] w-[calc(100%-17px)] resize-y flex-col gap-4 overflow-auto pl-1 pr-4"
               >
                 <Container
                   drag-class="cursor-grabbing"
                   drag-handle-selector=".task-drag"
                   lock-axis="y"
                   orientation="vertical"
-                  @drop="onTaskDrop"
                   :get-child-payload="(index: number) => tasks[index]"
+                  @drop="onTaskDrop"
                 >
                   <Draggable
                     v-for="(task, index) in tasks"
@@ -425,7 +425,7 @@ limitations under the License.
                           type="text"
                           @blur="updateTask(index)"
                           @keypress.enter="updateTask(index)"
-                        />
+                        >
                         <ClickCounter
                           v-else
                           @double-click="enableTaskEditMode(index, task)"
@@ -488,7 +488,7 @@ limitations under the License.
                 type="text"
                 @blur="cancelTaskAdd"
                 @keypress.enter="createTask"
-              />
+              >
             </div>
           </div>
           <div class="mt-4 flex flex-col pr-6">
@@ -631,7 +631,7 @@ limitations under the License.
                 :src="attachmentUrls[previewAttachment.id]"
                 :alt="previewAttachment.name"
                 class="max-h-full max-w-full rounded-md object-contain"
-              />
+              >
             </div>
           </Teleport>
         </div>
@@ -755,12 +755,7 @@ const progress = ref(0);
 const progressFromTasks = ref(true);
 const progressVisible = ref(true);
 const priority: Ref<number | null> = ref(null);
-const priorityButtonClasses: Record<number, string> = {
-  1: "bg-red-500/25 text-red-400",
-  2: "bg-orange-500/25 text-orange-400",
-  3: "bg-yellow-500/25 text-yellow-400",
-  4: "bg-sky-500/25 text-sky-400",
-};
+const priorityButtonClasses = priorityClasses;
 const setPriority = (level: number | null) => {
   priority.value = level;
   emit("setCardPriority", columnID.value, props.card?.id, level);
@@ -885,14 +880,10 @@ const filteredItems = computed(() => {
 });
 
 const getCheckedTaskNumber = computed(() => {
-  return tasks.value.filter((task) => task.finished).length || 0;
+  return countFinishedTasks(tasks.value);
 });
 
-const getTaskPercentage = computed(() => {
-  if (!tasks.value || tasks.value.length === 0) return 0;
-
-  return (getCheckedTaskNumber.value / tasks.value.length) * 100;
-});
+const getTaskPercentage = computed(() => taskPercentage(tasks.value));
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const beforeTagAdd = ({ tag, addTag }: any) => {
@@ -1066,11 +1057,11 @@ const toggleProgressFromTasks = () => {
     props.card?.id,
     progressFromTasks.value
   );
-  if (progressSyncActive.value) progress.value = Math.round(getTaskPercentage.value);
+  if (progressSyncActive.value)   progress.value = getTaskPercentage.value;
 };
 
 watch(getTaskPercentage, (pct) => {
-  if (progressSyncActive.value) progress.value = Math.round(pct);
+    if (progressSyncActive.value) progress.value = pct;
 });
 
 const setCardColor = (

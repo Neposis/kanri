@@ -282,11 +282,6 @@ export function useBoard(id: string | Ref<string>) {
     });
   };
 
-  const taskPercentage = (tasks: Card["tasks"]) => {
-    if (!tasks || tasks.length === 0) return 0;
-    return Math.round((tasks.filter((t) => t.finished).length / tasks.length) * 100);
-  };
-
   const setCardDueDate = (
     columnId: string,
     cardId: string | undefined,

@@ -32,7 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
       class="nodrag absolute right-0 top-0 z-10 h-full w-2 cursor-col-resize rounded-r-lg transition-colors hover:bg-white/10"
       @mousedown.stop.prevent="startResize"
       @dblclick.stop="emit('updateColumnWidth', id, undefined)"
-    ></div>
+    />
     <div
       id="board-title"
       :class="[
@@ -93,14 +93,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
               class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
               @click="$emit('updateColumnAutoComplete', id, !autoComplete)"
             >
-                <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-current text-xs leading-none">{{ autoComplete ? "✓" : "" }}</span>
+                <span class="flex size-4 shrink-0 items-center justify-center rounded border border-current text-xs leading-none">{{ autoComplete ? "✓" : "" }}</span>
                 {{ $t('components.kanban.column.autoComplete') }}
             </DropdownMenuItem>
             <DropdownMenuItem
               class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
               @click="$emit('updateColumnCompactProgress', id, !compactProgress)"
             >
-                <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-current text-xs leading-none">{{ compactProgress ? "" : "✓" }}</span>
+                <span class="flex size-4 shrink-0 items-center justify-center rounded border border-current text-xs leading-none">{{ compactProgress ? "" : "✓" }}</span>
                 {{ $t('components.kanban.column.expandProgress') }}
             </DropdownMenuItem>
             <DropdownMenuItem
@@ -298,7 +298,6 @@ import emitter from "@/utils/emitter";
 import { PlusIcon, EllipsisHorizontalIcon } from "@heroicons/vue/24/solid";
 //@ts-expect-error, sadly this library does not have ts typings
 import { Container, Draggable } from "vue3-smooth-dnd";
-import { useI18n } from "vue-i18n";
 
 const props = defineProps<{
   cardsList: Array<Card>;
@@ -359,7 +358,6 @@ const emit = defineEmits<{
   (e: "setCardTasksExpanded", columnId: string, cardId: string | undefined, expanded: boolean): void;
 }>();
 
-const { t } = useI18n();
 
 const settings = useSettingsStore();
 
@@ -518,21 +516,6 @@ const inputSizeClass = computed(() => {
       return "text-xl py-2";
     default:
       return "text-base py-1";
-  }
-});
-
-const iconSizeClass = computed(() => {
-  switch (props.zoomLevel) {
-    case -1:
-      return "size-4";
-    case 0:
-      return "size-4";
-    case 1:
-      return "size-5";
-    case 2:
-      return "size-6";
-    default:
-      return "size-4";
   }
 });
 

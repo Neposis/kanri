@@ -114,8 +114,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
       </h1>
       <input
         v-if="boardTitleEditing"
-        :value="boardContent.title"
         v-focus
+        :value="boardContent.title"
         class="bg-elevation-2 border-accent text-no-overflow -ml-2 mb-1 mr-2 h-12 w-min rounded-sm border-2 border-dotted px-2 text-4xl font-bold outline-none"
         maxlength="500"
         type="text"

@@ -248,7 +248,7 @@ limitations under the License.
             <button
               v-for="attachment in fileAttachments"
               :key="attachment.id"
-              class="bg-elevation-2 bg-elevation-3-hover flex max-w-[7rem] shrink-0 items-center gap-1 rounded-md px-1.5 py-1"
+              class="bg-elevation-2 bg-elevation-3-hover flex max-w-28 shrink-0 items-center gap-1 rounded-md px-1.5 py-1"
               :class="[taskTextClass, { 'opacity-60': isAttachmentMissing(attachment) }]"
               :title="
                 isAttachmentMissing(attachment)
@@ -468,12 +468,6 @@ watch(
   { deep: true, immediate: true }
 );
 
-const priorityClasses: Record<number, string> = {
-  1: "bg-red-500/25 text-red-400",
-  2: "bg-orange-500/25 text-orange-400",
-  3: "bg-yellow-500/25 text-yellow-400",
-  4: "bg-sky-500/25 text-sky-400",
-};
 const priorityClass = computed(() => priorityClasses[props.card.priority ?? 0] ?? "");
 
 const progressColor = computed(() => {
@@ -637,28 +631,19 @@ const toggleTask = (task: Task) => {
 const taskCompletionStatus = computed(() => {
   if (!tasks.value) return "0/0";
 
-  const totalTasks = tasks.value.length;
-  const completedTasks = tasks.value.filter((task) => task.finished).length;
-
-  return `${completedTasks}/${totalTasks}`;
+  return `${countFinishedTasks(tasks.value)}/${tasks.value.length}`;
 });
 
 const allTasksCompleted = computed(() => {
   if (!tasks.value) return false;
 
-  const totalTasks = tasks.value.length;
-  const completedTasks = tasks.value.filter((task) => task.finished).length;
-
-  if (totalTasks === completedTasks) return true;
-
-  return false; //default return
+  return countFinishedTasks(tasks.value) === tasks.value.length;
 });
 
 // New computed properties for scaling elements
 const hasProgress = computed(
   () =>
-    !!props.card.progress &&
-    props.card.progress > 0 &&
+    props.card.progress != null &&
     !props.card.hideProgress &&
     name.value !== "---"
 );
