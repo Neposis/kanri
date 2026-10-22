@@ -51,6 +51,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
                 @updateTagName="updateTagName"
               />
             </div>
+            <form class="mt-3 flex flex-row items-center gap-2" @submit.prevent="submitNewTag">
+              <input
+                v-model="newTagName"
+                type="text"
+                class="bg-elevation-2 w-full rounded-md px-2 py-1 outline-none"
+                :placeholder="$t('modals.cardTags.addTag')"
+              />
+              <button
+                type="submit"
+                class="bg-accent text-buttons flex shrink-0 flex-row items-center gap-1 rounded-md px-3 py-1 disabled:opacity-50"
+                :disabled="!newTagName.trim()"
+              >
+                <PhPlus class="size-4" />
+                {{ $t("modals.cardTags.addTag") }}
+              </button>
+            </form>
           </section>
         </div>
       </main>
@@ -60,6 +76,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
 
 <script setup lang="ts">
 import { XMarkIcon } from "@heroicons/vue/24/solid";
+import { PhPlus } from "@phosphor-icons/vue";
 import type { Tag } from "@/types/kanban-types";
 
 const emit = defineEmits([
@@ -67,11 +84,24 @@ const emit = defineEmits([
   "setTagColor",
   "removeTag",
   "updateTagName",
+  "addTag",
 ]);
 
-defineProps<{
+const props = defineProps<{
   tags: Array<Tag>;
 }>();
+
+const newTagName = ref("");
+
+const submitNewTag = () => {
+  const text = newTagName.value.trim();
+  if (!text) return;
+  const exists = props.tags.some(
+    (tag) => tag.text.toLowerCase() === text.toLowerCase()
+  );
+  if (!exists) emit("addTag", { id: generateUniqueID(), text });
+  newTagName.value = "";
+};
 
 const setTagColor = (tagId: string, color: string | null) => {
   emit("setTagColor", tagId, color);

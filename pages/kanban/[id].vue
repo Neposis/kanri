@@ -36,6 +36,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
       v-show="editTagModalVisible"
       :tags="boardContent?.globalTags ?? []"
       @closeModal="editTagModalVisible = false"
+      @addTag="board.addGlobalTag"
       @setTagColor="board.setGlobalTagColor"
       @removeTag="board.removeGlobalTag"
       @updateTagName="board.updateGlobalTagName"
