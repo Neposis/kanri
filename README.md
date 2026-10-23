@@ -1,3 +1,28 @@
+## Neposis' Kanri Fork
+I needed some extra features added in for more efficient workflow. Below is the list of changes on top of the base app (so far):
+
+#### _Additions_
+- Images and gifs can now be attached to cards, which will also show a preview when hovered over! Can also full screen them by clicking on them.
+- Files can be added to cards or referenced by link (so you don't have to make duplicates of large files)
+- Priority buttons to assign task importance easily and cleanly
+- Tasks progress bar removed in favour of the top progress bar
+- Task creation is a bit cleaner and removes the need for extra buttons. Simply keep typing new tasks in and click off to stop instead of pressing cancel!
+- Tags can now be added within the edit tags menu!
+- Added round button to each card which marks the task as complete and archives it on left click.
+- Rounded completion button can also now be right clicked to delete the card, and the X deletion icon has been removed.
+- Added a manual progress bar which can be used to arbitrarily keep track of a task. The progress bar can also be linked to the progress of tasks via toggle button. Can be turned off and on with progress or toggle button.
+- Columns can now be dragged on the side to widen them, in case of large areas of text. Double click on the side of column to reset to default width.
+- Tasks can be expanded from board view using a drop-down icon, which opens a compact scrollable menu.
+- Column [...] menu has two additional options; one to auto-complete cards dragged into the column (for people that use kanban horizontally), and the other to hide the progress bars and instead view it as a percentage instead. (Depending on use, per card or board option can be considered).
+- 
+### _Bug fixes:_
+- Fixed task drag-drop re-ordering
+- Set a better Card edit menu width max size, due to growing too wide on ultrawide monitors
+
+Thank you to _trobonox_ for the app.
+Original README:
+---
+
 <!--
 SPDX-FileCopyrightText: Copyright (c) 2022-2026 trobonox <hello@trobo.dev>
 
