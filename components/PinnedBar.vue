@@ -31,6 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
         :is-active="board.id === currentRouteBoardId"
         @setPinIcon="setPinIcon"
         @setPinTextIcon="setPinTextIcon"
+        @setPinColor="setPinColor"
         @clearPinIcon="clearPinIcon"
         @unpin="unpin"
       />
@@ -63,6 +64,12 @@ const setPinTextIcon = (id: string, pinIconText: string) => {
   boardsStore.mutateBoardPin(id, (pin => {
     pin.pinIcon = undefined;
     pin.pinIconText = pinIconText;
+  }));
+}
+
+const setPinColor = (id: string, pinColor: string | undefined) => {
+  boardsStore.mutateBoardPin(id, (pin => {
+    pin.pinColor = pinColor;
   }));
 }
 

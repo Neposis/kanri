@@ -7,11 +7,22 @@ import { openPath, revealItemInDir } from "@tauri-apps/plugin-opener";
 import { copyFile, exists, mkdir, remove } from "@tauri-apps/plugin-fs";
 
 import { generateUniqueID } from "@/utils/idGenerator";
+import { projectDir, relativeInside } from "@/utils/projectPaths";
 
 const ATTACHMENT_DIR = "attachments";
 const IMAGE_EXTENSIONS = ["png", "jpg", "jpeg", "gif", "webp", "bmp", "avif"];
 
-const attachmentsDir = async () => join(await appDataDir(), ATTACHMENT_DIR);
+// folder of the project board that is currently open; null means the app data folder is used
+const activeProjectDir = ref<string | null>(null);
+
+export const setActiveProjectDir = (dir: string | null) => {
+  activeProjectDir.value = dir;
+};
+
+export const getActiveProjectDir = () => activeProjectDir.value;
+
+const attachmentsDir = async () =>
+  join(activeProjectDir.value ?? (await appDataDir()), ATTACHMENT_DIR);
 
 export const isGifFile = (file: string) => file.toLowerCase().endsWith(".gif");
 
@@ -89,23 +100,18 @@ export function useAttachments() {
   };
 
   // name of the file inside the attachments folder that an entry points at, if any
-  const storedFileName = (attachment: Attachment, dir: string) => {
-    if (!attachment.path) return attachment.file;
+  const storedFileName = (attachment: Attachment, dir: string) =>
+    attachment.path ? relativeInside(dir, attachment.path) : attachment.file;
 
-    const slashes = (p: string) => p.replace(/\\/g, "/");
-    const prefix = `${slashes(dir)}/`;
-    const path = slashes(attachment.path);
-    return path.toLowerCase().startsWith(prefix.toLowerCase())
-      ? path.slice(prefix.length)
-      : null;
-  };
-
-  // true when another card on any board still points at the same stored file
+  // true when another card in the same storage location still points at the same stored file
   const isStoredFileShared = (attachment: Attachment, dir: string) => {
     const target = storedFileName(attachment, dir)?.toLowerCase();
     if (!target) return false;
 
     for (const board of useBoardsStore().boards) {
+      const boardDir = board.projectPath ? projectDir(board.projectPath) : null;
+      if (boardDir !== activeProjectDir.value) continue;
+
       for (const column of board.columns) {
         for (const card of column.cards) {
           for (const other of card.attachments ?? []) {

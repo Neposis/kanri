@@ -29,7 +29,15 @@
       "getUpdatesHeading": "¿Quieres obtener las últimas noticias y hablar con el desarrollador?",
       "joinDiscordButton": "¡Únete a la comunidad de Discord!",
       "deleteActionConfirmationHeading": "¿Borrar tablero?",
-      "deleteActionConfirmationText": "¿Está seguro de querer borrar el tablero {boardName}? Esta acción es irreversible."
+      "deleteActionConfirmationText": "¿Está seguro de querer borrar el tablero {boardName}? Esta acción es irreversible.",
+      "openProject": "Abrir proyecto…",
+      "projectNotFound": "No se encuentra el proyecto \"{name}\"",
+      "locateProject": "Localizar…",
+      "removeProject": "Quitar",
+      "saveToProjectFolder": "Guardar en carpeta de proyecto…",
+      "showProjectFolder": "Mostrar carpeta del proyecto",
+      "projectCreateError": "No se pudo crear la carpeta del proyecto.",
+      "projectOpenError": "Ese archivo no es un proyecto de Kanri válido."
     },
     "kanban": {
       "changeBackground": "Cambiar Fondo",
@@ -173,13 +181,13 @@
     },
     "changelog": {
       "title": "¿Qué hay de nuevo en Kanri {major}.{minor}.{revision}?",
-  "welcome": "¡Bienvenido a Kanri! Después de un tiempo, volvemos con una versión que incluye muchas correcciones importantes y algunas pequeñas funciones nuevas. Para enterarte rápidamente de nuevos lanzamientos y ver el progreso del desarrollo, puedes unirte",
+      "welcome": "¡Bienvenido a Kanri! Después de un tiempo, volvemos con una versión que incluye muchas correcciones importantes y algunas pequeñas funciones nuevas. Para enterarte rápidamente de nuevos lanzamientos y ver el progreso del desarrollo, puedes unirte",
       "welcomeLink": "al servidor oficial de Discord.",
-  "changes": "Cambios: (lee el registro de cambios para ver todos los detalles)",
-  "changeItem1": "Se corrigió un error por el que mover una carta mientras se buscaba movía la carta equivocada.",
-  "changeItem2": "Se añadió un ajuste para establecer automáticamente el modo claro/oscuro según la preferencia del sistema.",
-  "changeItem3": "Se añadió una función para marcar las fechas de vencimiento como completadas.",
-  "changeItem4": "Se corrigió un error por el que al eliminar un tablero no se quitaba de los anclajes de la barra lateral."
+      "changes": "Cambios: (lee el registro de cambios para ver todos los detalles)",
+      "changeItem1": "Se corrigió un error por el que mover una carta mientras se buscaba movía la carta equivocada.",
+      "changeItem2": "Se añadió un ajuste para establecer automáticamente el modo claro/oscuro según la preferencia del sistema.",
+      "changeItem3": "Se añadió una función para marcar las fechas de vencimiento como completadas.",
+      "changeItem4": "Se corrigió un error por el que al eliminar un tablero no se quitaba de los anclajes de la barra lateral."
     },
     "confirmation": {
       "sure": "¿Está seguro?",
@@ -254,7 +262,11 @@
       "newColumn": "Nueva Columna",
       "createBoardAction": "Crear Tablero",
       "boardNameEmptyError": "El nombre del tablero no puede estar vacío",
-      "placeholder": "Introduzca un nombre para el tablero"
+      "placeholder": "Introduzca un nombre para el tablero",
+      "location": "Ubicación",
+      "chooseLocation": "Elegir…",
+      "savedTo": "Se guardará en {path}",
+      "folderExistsError": "Ya existe una carpeta con este nombre en esa ubicación."
     },
     "renameBoard": {
       "title": "Renombrar tablero",

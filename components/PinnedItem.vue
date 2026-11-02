@@ -28,9 +28,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
               <span
                 v-if="customChar"
                 class="flex size-7 items-center justify-center text-[20px] leading-none"
+                :style="iconColorStyle"
                 >{{ customChar }}</span
               >
-              <component :is="selectedIcon" v-else class="size-7" />
+              <component :is="selectedIcon" v-else class="size-7" :style="iconColorStyle" />
             </div>
           </nuxt-link>
         </template>
@@ -43,9 +44,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
               <span
                 v-if="customChar"
                 class="flex size-7 items-center justify-center text-[20px] leading-none"
+                :style="iconColorStyle"
                 >{{ customChar }}</span
               >
-              <component :is="selectedIcon" v-else class="size-7" />
+              <component :is="selectedIcon" v-else class="size-7" :style="iconColorStyle" />
             </div>
           </nuxt-link>
         </template>
@@ -158,6 +160,31 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
         </template>
 
         <ContextMenuSeparator class="bg-elevation-1 my-2 h-px" />
+        <div class="flex flex-col gap-2 px-2">
+          <label class="text-dim-3 text-xs font-medium">Icon colour</label>
+          <div class="flex items-center gap-2">
+            <input
+              type="color"
+              class="bg-elevation-2 h-7 w-10 cursor-pointer rounded border-none p-0.5"
+              :value="props.board.pinColor ?? '#ffffff'"
+              @input="emit('setPinColor', props.board.id, ($event.target as HTMLInputElement).value)"
+            >
+            <button
+              v-for="swatch in colorSwatches"
+              :key="swatch"
+              class="size-5 shrink-0 rounded-full border border-white/20"
+              :style="{ backgroundColor: swatch }"
+              @click="emit('setPinColor', props.board.id, swatch)"
+            />
+            <button
+              v-if="props.board.pinColor"
+              class="bg-elevation-2-hover hover:bg-elevation-3 ml-auto rounded px-2 py-1 text-xs"
+              @click="emit('setPinColor', props.board.id, undefined)"
+            >Reset</button>
+          </div>
+        </div>
+
+        <ContextMenuSeparator class="bg-elevation-1 my-2 h-px" />
         <div class="px-2 pb-2">
           <button
             class="unpin-button bg-destructive/80 hover:bg-destructive text-destructive-content w-full rounded-md px-3 py-1.5 text-sm font-semibold transition-colors"
@@ -188,16 +215,20 @@ import {
 } from "@/utils/iconManager";
 
 const props = defineProps<{
-  board: { id: string; title: string; pinIcon?: string; pinIconText?: string };
+  board: { id: string; title: string; pinIcon?: string; pinIconText?: string; pinColor?: string };
   isActive: boolean;
 }>();
 
 const emit = defineEmits([
   "setPinIcon",
   "setPinTextIcon",
+  "setPinColor",
   "clearPinIcon",
   "unpin",
 ]);
+
+const colorSwatches = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#14b8a6", "#3b82f6", "#a855f7", "#ec4899"];
+const iconColorStyle = computed(() => (props.board.pinColor ? { color: props.board.pinColor } : undefined));
 
 const searchQuery = ref("");
 

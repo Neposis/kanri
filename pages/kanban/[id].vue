@@ -182,6 +182,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
                 <span>{{ $t("pages.kanban.renameBoardAction") }}</span>
               </DropdownMenuItem>
               <DropdownMenuItem
+                v-if="!boardContent.projectPath"
                 class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
                 @click="duplicateBoard"
               >
@@ -228,8 +229,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
 
     <div
       id="kanban-cols-container"
+      ref="colsContainer"
       v-dragscroll:nochilddrag
-      class="custom-scrollbar-horizontal flex max-h-screen flex-col overflow-y-hidden"
+      class="hide-scrollbar flex max-h-screen flex-col overflow-y-hidden"
     >
     <div class="pointer-events-none h-full w-max min-w-full pt-28">
         <div class="pointer-events-auto z-50 pl-8">
@@ -303,6 +305,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
         </div>
       </div>
     </div>
+    <KanbanBoardScrollbar :target="colsContainer" />
   </div>
   <div v-else class="flex h-screen w-screen items-center justify-center"/>
 </template>
@@ -336,6 +339,7 @@ const settings = useSettingsStore();
 const boardsStore = useBoardsStore();
 
 const draggingEnabled = ref(true);
+const colsContainer: Ref<HTMLElement | null> = ref(null);
 
 const searchQuery = ref("");
 
@@ -694,7 +698,7 @@ const exportBoardToJson = async () => {
     title: "Select file to export data to",
   });
 
-  const fileContents = JSON.stringify(boardContent.value, null, 2);
+  const fileContents = JSON.stringify({ ...boardContent.value, projectPath: undefined }, null, 2);
 
   if (filePath == null) return;
   await writeTextFile(filePath, fileContents);

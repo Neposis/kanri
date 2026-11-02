@@ -29,7 +29,15 @@
       "getUpdatesHeading": "想获取最新更新并与创作者交流吗？",
       "joinDiscordButton": "加入Discord社区！",
       "deleteActionConfirmationHeading": "删除看板？",
-      "deleteActionConfirmationText": "您确定要删除看板 {boardName} 吗？此操作不可逆。"
+      "deleteActionConfirmationText": "您确定要删除看板 {boardName} 吗？此操作不可逆。",
+      "openProject": "打开项目…",
+      "projectNotFound": "找不到项目“{name}”",
+      "locateProject": "定位…",
+      "removeProject": "移除",
+      "saveToProjectFolder": "保存到项目文件夹…",
+      "showProjectFolder": "显示项目文件夹",
+      "projectCreateError": "无法创建项目文件夹。",
+      "projectOpenError": "该文件不是有效的 Kanri 项目。"
     },
     "kanban": {
       "changeBackground": "更改背景",
@@ -172,14 +180,14 @@
       "addTag": "添加标签"
     },
     "changelog": {
-  "title": "Kanri {major}.{minor}.{revision} 有哪些更新？",
-  "welcome": "欢迎使用 Kanri！间隔一段时间后，我们带来了一个包含多项重要修复和少量新功能的版本。若想第一时间获知新版本并关注开发进度，您可以加入",
+      "title": "Kanri {major}.{minor}.{revision} 有哪些更新？",
+      "welcome": "欢迎使用 Kanri！间隔一段时间后，我们带来了一个包含多项重要修复和少量新功能的版本。若想第一时间获知新版本并关注开发进度，您可以加入",
       "welcomeLink": "官方 Discord 服务器。",
-  "changes": "变更：（更多详情请查看完整的更新日志）",
-  "changeItem1": "修复了在搜索时移动卡片会移动到错误卡片的问题。",
-  "changeItem2": "新增设置：可根据系统偏好自动切换明/暗模式。",
-  "changeItem3": "新增功能：可将到期日期标记为已完成。",
-  "changeItem4": "修复了删除看板后未从侧边栏固定项中移除的问题。"
+      "changes": "变更：（更多详情请查看完整的更新日志）",
+      "changeItem1": "修复了在搜索时移动卡片会移动到错误卡片的问题。",
+      "changeItem2": "新增设置：可根据系统偏好自动切换明/暗模式。",
+      "changeItem3": "新增功能：可将到期日期标记为已完成。",
+      "changeItem4": "修复了删除看板后未从侧边栏固定项中移除的问题。"
     },
     "confirmation": {
       "sure": "您确定吗？",
@@ -254,7 +262,11 @@
       "newColumn": "新建列表",
       "createBoardAction": "创建看板",
       "boardNameEmptyError": "看板名称不能为空",
-      "placeholder": "输入看板名称"
+      "placeholder": "输入看板名称",
+      "location": "保存位置",
+      "chooseLocation": "选择…",
+      "savedTo": "将保存到 {path}",
+      "folderExistsError": "该位置已存在同名文件夹。"
     },
     "renameBoard": {
       "title": "重命名看板",

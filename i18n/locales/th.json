@@ -29,7 +29,15 @@
       "getUpdatesHeading": "ต้องการรับข้อมูลอัปเดตล่าสุดและร่วมพูดคุยกับผู้สร้างหรือไม่",
       "joinDiscordButton": "เข้าร่วมชุมชน Discord!",
       "deleteActionConfirmationHeading": "ลบบอร์ด?",
-      "deleteActionConfirmationText": "คุณต้องการลบบอร์ด {boardName} ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้นะ"
+      "deleteActionConfirmationText": "คุณต้องการลบบอร์ด {boardName} ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้นะ",
+      "openProject": "เปิดโปรเจกต์…",
+      "projectNotFound": "ไม่พบโปรเจกต์ \"{name}\"",
+      "locateProject": "ระบุตำแหน่ง…",
+      "removeProject": "นำออก",
+      "saveToProjectFolder": "บันทึกลงโฟลเดอร์โปรเจกต์…",
+      "showProjectFolder": "แสดงโฟลเดอร์โปรเจกต์",
+      "projectCreateError": "ไม่สามารถสร้างโฟลเดอร์โปรเจกต์ได้",
+      "projectOpenError": "ไฟล์นี้ไม่ใช่โปรเจกต์ Kanri ที่ถูกต้อง"
     },
     "kanban": {
       "changeBackground": "เปลี่ยนพื้นหลัง",
@@ -257,7 +265,11 @@
       "newColumn": "คอลัมน์ใหม่",
       "createBoardAction": "สร้างบอร์ด",
       "boardNameEmptyError": "ชื่อบอร์ดต้องไม่เว้นว่าง",
-      "placeholder": "ป้อนชื่อบอร์ด"
+      "placeholder": "ป้อนชื่อบอร์ด",
+      "location": "ตำแหน่งที่บันทึก",
+      "chooseLocation": "เลือก…",
+      "savedTo": "จะบันทึกไปที่ {path}",
+      "folderExistsError": "มีโฟลเดอร์ชื่อนี้อยู่แล้วในตำแหน่งดังกล่าว"
     },
     "renameBoard": {
       "title": "เปลี่ยนชื่อบอร์ด",

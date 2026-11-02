@@ -29,7 +29,15 @@
       "getUpdatesHeading": "Souhaitez-vous recevoir les dernières mises à jour et discuter avec le créateur ?",
       "joinDiscordButton": "Rejoignez la communauté Discord !",
       "deleteActionConfirmationHeading": "Supprimer le tableau ?",
-      "deleteActionConfirmationText": "Êtes-vous sûr de vouloir supprimer le tableau {boardName} ? Cette action ne peut être annulée."
+      "deleteActionConfirmationText": "Êtes-vous sûr de vouloir supprimer le tableau {boardName} ? Cette action ne peut être annulée.",
+      "openProject": "Ouvrir un projet…",
+      "projectNotFound": "Projet \"{name}\" introuvable",
+      "locateProject": "Localiser…",
+      "removeProject": "Retirer",
+      "saveToProjectFolder": "Enregistrer dans un dossier de projet…",
+      "showProjectFolder": "Afficher le dossier du projet",
+      "projectCreateError": "Impossible de créer le dossier du projet.",
+      "projectOpenError": "Ce fichier n'est pas un projet Kanri valide."
     },
     "kanban": {
       "changeBackground": "Changer l'arrière plan",
@@ -172,14 +180,14 @@
       "addTag": "Ajouter une étiquette"
     },
     "changelog": {
-  "title": "Quoi de neuf dans Kanri {major}.{minor}.{revision} ?",
-  "welcome": "Bienvenue dans Kanri ! Après un moment, nous revenons avec une version comprenant de nombreuses corrections importantes et quelques petites nouveautés. Pour être rapidement informé des nouvelles versions et suivre l'avancement du développement, vous pouvez rejoindre",
+      "title": "Quoi de neuf dans Kanri {major}.{minor}.{revision} ?",
+      "welcome": "Bienvenue dans Kanri ! Après un moment, nous revenons avec une version comprenant de nombreuses corrections importantes et quelques petites nouveautés. Pour être rapidement informé des nouvelles versions et suivre l'avancement du développement, vous pouvez rejoindre",
       "welcomeLink": "le serveur officiel Discord.",
-  "changes": "Modifications : (lisez le changelog pour toutes les modifications)",
-  "changeItem1": "Correction d’un bug où déplacer une carte pendant une recherche déplaçait la mauvaise carte.",
-  "changeItem2": "Ajout d’un réglage pour définir automatiquement le mode clair/sombre selon la préférence du système.",
-  "changeItem3": "Ajout d’une fonction permettant de marquer les dates d’échéance comme terminées.",
-  "changeItem4": "Correction d’un bug où la suppression d’un tableau ne le retirait pas des épingles de la barre latérale."
+      "changes": "Modifications : (lisez le changelog pour toutes les modifications)",
+      "changeItem1": "Correction d’un bug où déplacer une carte pendant une recherche déplaçait la mauvaise carte.",
+      "changeItem2": "Ajout d’un réglage pour définir automatiquement le mode clair/sombre selon la préférence du système.",
+      "changeItem3": "Ajout d’une fonction permettant de marquer les dates d’échéance comme terminées.",
+      "changeItem4": "Correction d’un bug où la suppression d’un tableau ne le retirait pas des épingles de la barre latérale."
     },
     "confirmation": {
       "sure": "Êtes-vous sûr ?",
@@ -254,7 +262,11 @@
       "newColumn": "Nouvelle colonne",
       "createBoardAction": "Créer un tableau",
       "boardNameEmptyError": "Le nom du tableau ne peut pas être vide",
-      "placeholder": "Entrez un nom pour le tableau"
+      "placeholder": "Entrez un nom pour le tableau",
+      "location": "Emplacement",
+      "chooseLocation": "Choisir…",
+      "savedTo": "Sera enregistré dans {path}",
+      "folderExistsError": "Un dossier portant ce nom existe déjà à cet emplacement."
     },
     "renameBoard": {
       "title": "Renommer le tableau",

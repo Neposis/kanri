@@ -67,3 +67,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .custom-scrollbar-horizontal::-webkit-scrollbar-thumb:hover {
   background: var(--elevation-3);
 }
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}

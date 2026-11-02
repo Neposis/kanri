@@ -19,11 +19,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import { computed, toValue } from "vue";
+import { computed, onScopeDispose, toValue, watch } from "vue";
 import type { Ref } from "vue";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import type { Attachment, Board, Card, Column, Tag } from "@/types/kanban-types";
 import { useBoardsStore } from "@/stores/boards";
+import { getActiveProjectDir, setActiveProjectDir } from "@/composables/useAttachments";
+import { projectDir } from "@/utils/projectPaths";
 
 export function useBoard(id: string | Ref<string>) {
   const store = useBoardsStore();
@@ -31,6 +33,20 @@ export function useBoard(id: string | Ref<string>) {
   const board = computed<Board | null>(() => store.boardById(toValue(id)));
 
   const isPinned = computed(() => store.isPinned(toValue(id)));
+
+  // attachments of project boards live next to the project file
+  let appliedDir: string | null = null;
+  watch(
+    () => board.value?.projectPath,
+    (path) => {
+      appliedDir = path ? projectDir(path) : null;
+      setActiveProjectDir(appliedDir);
+    },
+    { flush: "sync", immediate: true }
+  );
+  onScopeDispose(() => {
+    if (getActiveProjectDir() === appliedDir) setActiveProjectDir(null);
+  });
 
   async function init() {
     await store.init();
@@ -116,13 +132,16 @@ export function useBoard(id: string | Ref<string>) {
     const column = board.value.columns.find((c) => c.id === columnId);
     const card = column?.cards.find((c) => c.id === cardId);
     const storedPaths: Record<string, string> = {};
-    try {
-      const dir = await join(await appDataDir(), "attachments");
-      for (const a of card?.attachments ?? []) {
-        if (!a.path) storedPaths[a.id] = await join(dir, a.file);
+    // project boards keep relative entries, which already share the same file
+    if (!board.value.projectPath) {
+      try {
+        const dir = await join(await appDataDir(), "attachments");
+        for (const a of card?.attachments ?? []) {
+          if (!a.path) storedPaths[a.id] = await join(dir, a.file);
+        }
+      } catch (e) {
+        console.warn("Could not resolve attachment paths for duplicate", e);
       }
-    } catch (e) {
-      console.warn("Could not resolve attachment paths for duplicate", e);
     }
 
     store.duplicateCard(board.value.id, columnId, cardId, storedPaths);

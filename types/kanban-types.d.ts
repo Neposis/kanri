@@ -27,6 +27,11 @@ export declare interface Board {
   createdAt?: Date | string;
   title: string;
   globalTags?: Array<Tag> | null;
+  /** absolute path of the .kanri file when the board is saved as a project; never written into the file itself */
+  projectPath?: string;
+  pinIcon?: string;
+  pinIconText?: string;
+  pinColor?: string;
 }
 
 export declare interface BackgroundSettings {

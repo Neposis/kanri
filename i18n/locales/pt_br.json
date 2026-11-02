@@ -29,7 +29,15 @@
       "getUpdatesHeading": "Deseja obter as atualizações mais recentes e conversar com o criador?",
       "joinDiscordButton": "Junte-se à comunidade Discord!",
       "deleteActionConfirmationHeading": "Apagar o quadro?",
-      "deleteActionConfirmationText": "Tem certeza de que deseja excluir o quadro {boardName}? Esta ação é irreversível."
+      "deleteActionConfirmationText": "Tem certeza de que deseja excluir o quadro {boardName}? Esta ação é irreversível.",
+      "openProject": "Abrir projeto…",
+      "projectNotFound": "Projeto \"{name}\" não encontrado",
+      "locateProject": "Localizar…",
+      "removeProject": "Remover",
+      "saveToProjectFolder": "Salvar em pasta de projeto…",
+      "showProjectFolder": "Mostrar pasta do projeto",
+      "projectCreateError": "Não foi possível criar a pasta do projeto.",
+      "projectOpenError": "Esse arquivo não é um projeto Kanri válido."
     },
     "kanban": {
       "changeBackground": "Alterar plano de fundo",
@@ -173,13 +181,13 @@
     },
     "changelog": {
       "title": "O que há de novo no Kanri {major}.{minor}.{revision}?",
-  "welcome": "Bem-vindo ao Kanri! Após um tempo, estamos de volta com uma versão com muitas correções importantes e alguns pequenos recursos novos. Para ser notificado rapidamente sobre novos lançamentos e acompanhar o progresso do desenvolvimento, você pode se juntar",
+      "welcome": "Bem-vindo ao Kanri! Após um tempo, estamos de volta com uma versão com muitas correções importantes e alguns pequenos recursos novos. Para ser notificado rapidamente sobre novos lançamentos e acompanhar o progresso do desenvolvimento, você pode se juntar",
       "welcomeLink": "ao servidor oficial do Discord.",
-  "changes": "Mudanças: (leia o changelog para ver todas as alterações)",
-  "changeItem1": "Corrigido um bug em que mover um cartão durante a busca movia o cartão errado.",
-  "changeItem2": "Adicionada configuração para definir automaticamente o modo claro/escuro com base na preferência do sistema.",
-  "changeItem3": "Adicionado recurso para marcar datas de vencimento como concluídas.",
-  "changeItem4": "Corrigido um bug em que excluir um quadro não o removia dos fixados na barra lateral."
+      "changes": "Mudanças: (leia o changelog para ver todas as alterações)",
+      "changeItem1": "Corrigido um bug em que mover um cartão durante a busca movia o cartão errado.",
+      "changeItem2": "Adicionada configuração para definir automaticamente o modo claro/escuro com base na preferência do sistema.",
+      "changeItem3": "Adicionado recurso para marcar datas de vencimento como concluídas.",
+      "changeItem4": "Corrigido um bug em que excluir um quadro não o removia dos fixados na barra lateral."
     },
     "confirmation": {
       "sure": "Você tem certeza?",
@@ -254,7 +262,11 @@
       "newColumn": "Nova Coluna",
       "createBoardAction": "Criar Quadro",
       "boardNameEmptyError": "O nome do quadro não pode estar em branco",
-      "placeholder": "Digite um nome para o quadro"
+      "placeholder": "Digite um nome para o quadro",
+      "location": "Local de salvamento",
+      "chooseLocation": "Escolher…",
+      "savedTo": "Será salvo em {path}",
+      "folderExistsError": "Já existe uma pasta com esse nome nesse local."
     },
     "renameBoard": {
       "title": "Renomear quadro",

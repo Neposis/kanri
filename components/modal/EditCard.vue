@@ -601,13 +601,6 @@ limitations under the License.
               </div>
             </div>
             <div class="mt-2 flex w-[96%] flex-row gap-2">
-              <button
-                class="bg-elevation-1 bg-elevation-2-hover flex h-min min-w-0 flex-1 cursor-pointer flex-row items-center gap-2 rounded-md py-1 pl-0.5 pr-2"
-                @click="addAttachments('copy')"
-              >
-                <PlusIcon class="text-accent size-6 shrink-0" />
-                <span class="truncate">{{ $t("modals.editCard.attachmentAdd") }}</span>
-              </button>
               <div v-on-click-outside="() => (linkMenuOpen = false)" class="relative min-w-0 flex-1">
                 <button
                   class="bg-elevation-1 bg-elevation-2-hover flex h-min w-full min-w-0 cursor-pointer flex-row items-center gap-2 rounded-md px-2 py-1"
@@ -638,6 +631,13 @@ limitations under the License.
                   </button>
                 </div>
               </div>
+              <button
+                class="bg-elevation-1 bg-elevation-2-hover flex h-min min-w-0 flex-1 cursor-pointer flex-row items-center gap-2 rounded-md py-1 pl-0.5 pr-2"
+                @click="addAttachments('copy')"
+              >
+                <PlusIcon class="text-accent size-6 shrink-0" />
+                <span class="truncate">{{ $t("modals.editCard.attachmentAdd") }}</span>
+              </button>
             </div>
           </div>
           <Teleport to="body">
@@ -857,6 +857,8 @@ const attachmentTitle = (attachment: Attachment) =>
     : attachment.path ?? attachment.name;
 
 const removeAttachment = async (attachment: Attachment) => {
+  // the hovered element is removed without a mouseleave, so clear the preview here
+  hoveredAttachment.value = null;
   attachments.value = attachments.value.filter((a) => a.id !== attachment.id);
   emit("setCardAttachments", columnID.value, props.card?.id, attachments.value);
   await deleteAttachmentFile(attachment);

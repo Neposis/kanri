@@ -24,6 +24,10 @@
     "fs:allow-read-text-file",
     "fs:allow-write-text-file",
     {
+      "identifier": "fs:scope",
+      "allow": [{ "path": "**" }]
+    },
+    {
       "identifier": "fs:allow-mkdir",
       "allow": [{ "path": "$APPDATA/attachments" }, { "path": "$APPDATA/attachments/**" }]
     },

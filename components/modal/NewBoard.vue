@@ -51,6 +51,32 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
             {{ $t("modals.newBoard.boardNameEmptyError") }}
           </p>
 
+          <label class="text-medium text-dim-1 mb-2 mt-4 text-lg" for="boardLocation">{{
+            $t("modals.newBoard.location")
+          }}</label>
+          <div class="flex flex-row gap-2">
+            <input
+              id="boardLocation"
+              v-model="location"
+              class="bg-elevation-2 border-elevation-3 border-accent-focus h-10 min-w-0 flex-1 rounded-md border p-2 transition-colors duration-300 focus:border-2 focus:border-dotted focus:outline-none"
+              type="text"
+              @input="locationExistsError = false"
+            >
+            <button
+              class="bg-elevation-2 bg-elevation-3-hover transition-button rounded-md px-3"
+              type="button"
+              @click="chooseLocation()"
+            >
+              {{ $t("modals.newBoard.chooseLocation") }}
+            </button>
+          </div>
+          <p class="text-dim-3 mt-1 break-all text-sm">
+            {{ $t("modals.newBoard.savedTo", { path: projectFolderPreview }) }}
+          </p>
+          <p v-if="locationExistsError" class="mt-0.5 text-red-500">
+            {{ $t("modals.newBoard.folderExistsError") }}
+          </p>
+
           <div class="mt-3 flex flex-row gap-4">
             <SwitchRoot
               v-model:checked="exampleColumns"
@@ -124,9 +150,15 @@ import type { Ref } from "vue";
 import emitter from "@/utils/emitter";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import { PhPlus, PhTrash } from "@phosphor-icons/vue";
+import { documentDir, join } from "@tauri-apps/api/path";
+import { open } from "@tauri-apps/plugin-dialog";
+import { exists } from "@tauri-apps/plugin-fs";
 import { useI18n } from "vue-i18n";
 
 import { exampleColumns as staticExampleColumns } from "~/utils/exampleData";
+import { safeFolderName } from "@/utils/projectPaths";
+
+const LOCATION_KEY = "kanri-project-location";
 
 const emit = defineEmits<{
   (e: "closeModal"): void;
@@ -138,8 +170,29 @@ const boardNameInput: Ref<HTMLInputElement | null> = ref(null);
 const boardNameEmptyError = ref(false);
 
 const newBoardName = ref("");
+const location = ref("");
+const locationExistsError = ref(false);
 const exampleColumns = ref(false);
 const columns: Ref<Array<Column>> = ref(staticExampleColumns.map((column) => ({ title: column.title, id: generateUniqueID(), cards: [] })));
+
+onMounted(async () => {
+  location.value = localStorage.getItem(LOCATION_KEY) || (await documentDir().catch(() => ""));
+});
+
+// the board name is appended to the chosen location, the same way GitHub Desktop does it
+const projectFolderPreview = computed(() => {
+  const separator = location.value.includes("/") && !location.value.includes("\\") ? "/" : "\\";
+  const base = location.value.replace(/[\\/]+$/, "");
+  return `${base}${separator}${safeFolderName(newBoardName.value || "…")}`;
+});
+
+const chooseLocation = async () => {
+  const selected = await open({ defaultPath: location.value || undefined, directory: true });
+  if (typeof selected === "string") {
+    location.value = selected;
+    locationExistsError.value = false;
+  }
+};
 
 onUpdated(() => {
   nextTick(() => {
@@ -175,14 +228,27 @@ const addColumnAndScrollToEnd = () => {
   });
 };
 
-const createNewBoard = () => {
+const createNewBoard = async () => {
   if (newBoardName.value == null || !/\S/.test(newBoardName.value)) return;
+  if (!location.value.trim()) return;
+
+  try {
+    if (await exists(await join(location.value, safeFolderName(newBoardName.value)))) {
+      locationExistsError.value = true;
+      return;
+    }
+  } catch (e) {
+    console.warn("Could not check the project folder", e);
+  }
+
+  localStorage.setItem(LOCATION_KEY, location.value);
 
   if (exampleColumns.value === true) {
-    emitter.emit("createBoard", { title: newBoardName.value });
+    emitter.emit("createBoard", { location: location.value, title: newBoardName.value });
   } else {
     emitter.emit("createBoard", {
       columns: columns.value,
+      location: location.value,
       title: newBoardName.value,
     });
   }
@@ -192,6 +258,7 @@ const createNewBoard = () => {
 
 const closeModal = () => {
   newBoardName.value = "";
+  locationExistsError.value = false;
   boardNameEmptyError.value = false; // we do not want to show the error before the user clicks outside the input for the first time
   exampleColumns.value = false;
   columns.value = [

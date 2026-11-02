@@ -29,7 +29,15 @@
       "getUpdatesHeading": "En son güncellemeleri almak ve oluşturucu ile sohbet etmek ister misiniz?",
       "joinDiscordButton": "Discord topluluğuna katılın!",
       "deleteActionConfirmationHeading": "Panoyu Sil?",
-      "deleteActionConfirmationText": "{boardName} panosunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
+      "deleteActionConfirmationText": "{boardName} panosunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+      "openProject": "Proje aç…",
+      "projectNotFound": "\"{name}\" projesi bulunamadı",
+      "locateProject": "Konumunu belirt…",
+      "removeProject": "Kaldır",
+      "saveToProjectFolder": "Proje klasörüne kaydet…",
+      "showProjectFolder": "Proje klasörünü göster",
+      "projectCreateError": "Proje klasörü oluşturulamadı.",
+      "projectOpenError": "Bu dosya geçerli bir Kanri projesi değil."
     },
     "kanban": {
       "changeBackground": "Arka Planı Değiştir",
@@ -172,14 +180,14 @@
       "addTag": "Etiket ekle"
     },
     "changelog": {
-  "title": "Kanri {major}.{minor}.{revision}'de neler yeni?",
-  "welcome": "Kanri'ye hoş geldiniz! Bir süre sonra, birçok önemli düzeltme ve birkaç küçük yeni özellikle geri döndük. Yeni sürümlerden hızlıca haberdar olmak ve geliştirme ilerlemesini görmek için katılabilirsiniz",
+      "title": "Kanri {major}.{minor}.{revision}'de neler yeni?",
+      "welcome": "Kanri'ye hoş geldiniz! Bir süre sonra, birçok önemli düzeltme ve birkaç küçük yeni özellikle geri döndük. Yeni sürümlerden hızlıca haberdar olmak ve geliştirme ilerlemesini görmek için katılabilirsiniz",
       "welcomeLink": "resmi Discord sunucusu.",
-  "changes": "Değişiklikler: (tüm değişiklikler için changelog'u okuyun)",
-  "changeItem1": "Arama yaparken bir kartı taşırken yanlış kartın taşınmasına neden olan bir hata düzeltildi.",
-  "changeItem2": "Sistem tercihi temelinde açık/koyu modu otomatik ayarlamak için bir ayar eklendi.",
-  "changeItem3": "Bitiş tarihlerini tamamlandı olarak işaretleme özelliği eklendi.",
-  "changeItem4": "Bir pano silindiğinde kenar çubuğu sabitlerinden kaldırılmamasına neden olan bir hata düzeltildi."
+      "changes": "Değişiklikler: (tüm değişiklikler için changelog'u okuyun)",
+      "changeItem1": "Arama yaparken bir kartı taşırken yanlış kartın taşınmasına neden olan bir hata düzeltildi.",
+      "changeItem2": "Sistem tercihi temelinde açık/koyu modu otomatik ayarlamak için bir ayar eklendi.",
+      "changeItem3": "Bitiş tarihlerini tamamlandı olarak işaretleme özelliği eklendi.",
+      "changeItem4": "Bir pano silindiğinde kenar çubuğu sabitlerinden kaldırılmamasına neden olan bir hata düzeltildi."
     },
     "confirmation": {
       "sure": "Emin misiniz?",
@@ -254,7 +262,11 @@
       "newColumn": "Yeni Sütun",
       "createBoardAction": "Pano Oluştur",
       "boardNameEmptyError": "Pano adı boş olamaz",
-      "placeholder": "Pano için bir isim girin"
+      "placeholder": "Pano için bir isim girin",
+      "location": "Kayıt konumu",
+      "chooseLocation": "Seç…",
+      "savedTo": "{path} konumuna kaydedilecek",
+      "folderExistsError": "Bu konumda aynı adlı bir klasör zaten var."
     },
     "renameBoard": {
       "title": "Panoyu yeniden adlandır",

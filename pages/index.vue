@@ -149,13 +149,55 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
           </div>
         </div>
 
+        <button
+          class="bg-elevation-1 bg-elevation-2-hover transition-button flex max-h-12 items-center gap-2 whitespace-nowrap rounded-md px-4"
+          @click="openProject()"
+        >
+          <PhFolderOpen class="size-6 shrink-0" />
+          {{ $t("pages.index.openProject") }}
+        </button>
+      </div>
+
         <p v-if="editSortWarning" class="ml-1 mt-1 text-sm text-amber-400/90">
           {{ $t('pages.index.editSortWarning') }}
         </p>
-      </div>
     </section>
 
     <main id="boards">
+      <p v-if="projectError" class="mt-3 text-red-500">
+        {{ projectError }}
+      </p>
+
+      <!-- Project boards whose file could not be found -->
+      <div v-if="missingProjects.length > 0" class="mt-4 flex flex-col gap-2 pr-2">
+        <div
+          v-for="project in missingProjects"
+          :key="project.path"
+          class="bg-elevation-1 border-elevation-3 flex flex-row items-center gap-4 rounded-md border p-3"
+        >
+          <PhWarning class="size-6 shrink-0 text-amber-400" />
+          <div class="min-w-0 flex-1">
+            <p class="font-semibold">
+              {{ $t("pages.index.projectNotFound", { name: project.title ?? project.path }) }}
+            </p>
+            <p class="text-dim-3 break-all text-sm">
+              {{ project.path }}
+            </p>
+          </div>
+          <button
+            class="bg-accent text-buttons transition-button rounded-md px-3 py-1"
+            @click="locateProject(project.path)"
+          >
+            {{ $t("pages.index.locateProject") }}
+          </button>
+          <button
+            class="bg-elevation-2 bg-elevation-3-hover transition-button rounded-md px-3 py-1"
+            @click="boardsStore.removeMissingProject(project.path)"
+          >
+            {{ $t("pages.index.removeProject") }}
+          </button>
+        </div>
+      </div>
       <div
         v-if="boards.length === 0 && loading === false"
         class="items-left mt-2 flex w-fit flex-col justify-center rounded-md p-2"
@@ -247,11 +289,28 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
                       <span>{{ $t("pages.kanban.renameBoardAction") }}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
+                      v-if="!board.projectPath"
                       class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
                       @click="duplicateBoard(board.id)"
                     >
                       <span class="text-dim-2"><PhCopy class="size-5" /></span>
                       <span>{{ $t("pages.kanban.duplicateBoardAction") }}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      v-if="!board.projectPath"
+                      class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
+                      @click="saveToProjectFolder(board.id)"
+                    >
+                      <span class="text-dim-2"><PhFloppyDisk class="size-5" /></span>
+                      <span>{{ $t("pages.index.saveToProjectFolder") }}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      v-else
+                      class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
+                      @click="showProjectFolder(board.projectPath)"
+                    >
+                      <span class="text-dim-2"><PhFolderOpen class="size-5" /></span>
+                      <span>{{ $t("pages.index.showProjectFolder") }}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
@@ -288,20 +347,22 @@ import type { Board, Column } from "@/types/kanban-types";
 import emitter from "@/utils/emitter";
 import { ChevronDownIcon, MagnifyingGlassIcon, XMarkIcon } from "@heroicons/vue/24/outline";
 import { CheckIcon, EllipsisHorizontalIcon } from "@heroicons/vue/24/solid";
-import { PhFunnel, PhTrash, PhExport, PhCopy, PhPencil } from "@phosphor-icons/vue";
+import { PhFunnel, PhTrash, PhExport, PhCopy, PhPencil, PhFolderOpen, PhFloppyDisk, PhWarning } from "@phosphor-icons/vue";
 import { useI18n } from "vue-i18n";
-import { save } from "@tauri-apps/plugin-dialog";
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { writeTextFile } from "@tauri-apps/plugin-fs";
 
 const layoutSettings = useLayoutStore();
 const boardsStore = useBoardsStore();
 const settingsStore = useSettingsStore();
 
-const { boards } = storeToRefs(boardsStore);
+const { boards, missingProjects } = storeToRefs(boardsStore);
 const { boardSortingOption, reverseSorting } = storeToRefs(settingsStore);
 
 const loading = ref(true);
 const editSortWarning = ref(false);
+const projectError = ref("");
 
 const renameBoardModalVisible = ref(false);
 const deleteBoardModalVisible = ref(false);
@@ -340,8 +401,8 @@ const noResultsText = computed(() => {
   return result === key ? "No boards match your search." : result;
 });
 
-const handleCreateBoard = async ({ columns, title }: { columns?: Column[]; title: string }) => {
-  await createNewBoard(title, columns);
+const handleCreateBoard = async ({ columns, location, title }: { columns?: Column[]; location?: string; title: string }) => {
+  await createNewBoard(title, columns, location);
 };
 
 const visibleBoards = computed(() => {
@@ -394,7 +455,7 @@ const getSortedBoards = (boards: Board[], sortingOption: string, reverseSort: bo
   else return sortedBoards;
 };
 
-const createNewBoard = async (title: string, columns?: Column[]) => {
+const createNewBoard = async (title: string, columns?: Column[], location?: string) => {
   const board: Board = {
     columns: columns || exampleColumns.map((column) => ({ ...column, id: generateUniqueID() })),
     id: generateUniqueID(),
@@ -403,7 +464,70 @@ const createNewBoard = async (title: string, columns?: Column[]) => {
     title: title,
   };
 
-  boardsStore.upsertBoard(board);
+  projectError.value = "";
+  if (!location) {
+    boardsStore.upsertBoard(board);
+    return;
+  }
+
+  try {
+    await boardsStore.createProjectBoard(board, location);
+  } catch (e) {
+    console.error("Could not create project", e);
+    projectError.value = t("pages.index.projectCreateError");
+  }
+};
+
+const openProject = async () => {
+  projectError.value = "";
+  const selected = await open({
+    filters: [{ extensions: ["kanri"], name: "Kanri project" }],
+  });
+  if (typeof selected !== "string") return;
+
+  try {
+    await boardsStore.openProject(selected);
+  } catch (e) {
+    console.error("Could not open project", e);
+    projectError.value = t("pages.index.projectOpenError");
+  }
+};
+
+const locateProject = async (oldPath: string) => {
+  projectError.value = "";
+  const selected = await open({
+    filters: [{ extensions: ["kanri"], name: "Kanri project" }],
+  });
+  if (typeof selected !== "string") return;
+
+  try {
+    await boardsStore.locateProject(oldPath, selected);
+  } catch (e) {
+    console.error("Could not locate project", e);
+    projectError.value = t("pages.index.projectOpenError");
+  }
+};
+
+const saveToProjectFolder = async (id: string) => {
+  projectError.value = "";
+  const selected = await open({ directory: true });
+  if (typeof selected !== "string") return;
+
+  try {
+    await boardsStore.saveBoardToProject(id, selected);
+  } catch (e) {
+    console.error("Could not save board to project folder", e);
+    projectError.value = t("modals.newBoard.folderExistsError");
+  }
+};
+
+const showProjectFolder = async (projectPath: string | undefined) => {
+  if (!projectPath) return;
+  try {
+    await revealItemInDir(projectPath);
+  } catch (e) {
+    console.error("Could not show project folder", e);
+  }
 };
 
 const renameBoardModal = (id: string) => {
@@ -477,7 +601,7 @@ const exportBoardToJson = async (id: string) => {
     title: "Select file to export data to",
   });
 
-  const fileContents = JSON.stringify(boardToExport, null, 2);
+  const fileContents = JSON.stringify({ ...boardToExport, projectPath: undefined }, null, 2);
 
   if (filePath == null) return;
   await writeTextFile(filePath, fileContents);

@@ -28,7 +28,7 @@ type Events = {
   columnDraggingOff: void;
   columnDraggingOn: void;
 
-  createBoard: { columns?: Array<Column>; title: string };
+  createBoard: { columns?: Array<Column>; location?: string; title: string };
 
   enableColumnCardAddMode: string;
   enableColumnTitleEditing: string;

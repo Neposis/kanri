@@ -24,13 +24,31 @@ import { toRaw } from "vue";
 import type { Board, Column, Card, Tag } from "@/types/kanban-types";
 import { useTauriStore } from "@/stores/tauriStore";
 import { generateUniqueID } from "@/utils/idGenerator";
+import { PROJECT_EXTENSION, relativeInside, safeFolderName } from "@/utils/projectPaths";
+import { appDataDir, join } from "@tauri-apps/api/path";
+import { copyFile, exists, mkdir, readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
-type Pin = { id: string; title: string; pinIcon?: string; pinIconText?: string };
+type Pin = { id: string; title: string; pinIcon?: string; pinIconText?: string; pinColor?: string };
+
+// pin appearance of project boards is kept inside their .kanri file
+const PIN_FIELDS = ["pinIcon", "pinIconText", "pinColor"] as const;
+
+// reference to a project board stored in its own .kanri file
+export type ProjectRef = { id?: string; title?: string; path: string };
+
+// last content written per project board, so only changed boards are written back
+const writtenProjects: Record<string, string> = {};
+
+// the project path is machine specific, so it is never part of the file
+const serializeBoard = (board: Board) =>
+  JSON.stringify({ ...toRaw(board), projectPath: undefined }, null, 2);
 
 export const useBoardsStore = defineStore("boards", {
   state: () => ({
     boards: [] as Board[],
     pins: [] as Pin[],
+    // project boards whose file could not be read, kept so the user can locate or remove them
+    missingProjects: [] as ProjectRef[],
     initialized: false,
   }),
   getters: {
@@ -44,6 +62,11 @@ export const useBoardsStore = defineStore("boards", {
 
       this.boards = (await tauri.get("boards")) || [];
       this.pins = (await tauri.get("pins")) || [];
+
+      const refs = (await tauri.get<ProjectRef[]>("projects")) || [];
+      for (const ref of refs) {
+        if (!(await this._loadProject(ref))) this.missingProjects.push(ref);
+      }
       this.initialized = true;
 
       this._propagateCreatedAtDates(); // add creation dates for old boards that don't have it
@@ -51,19 +74,152 @@ export const useBoardsStore = defineStore("boards", {
     },
     async forceReloadBoards() {
       const tauri = useTauriStore().store;
-      this.boards = (await tauri.get("boards")) || [];
+      const saved = ((await tauri.get<Board[]>("boards")) || []);
+      this.boards = [...this.boards.filter(b => b.projectPath), ...saved];
     },
     async save() {
       const tauri = useTauriStore().store;
       try {
-        await tauri.set("boards", this.boards);
+        const projects: ProjectRef[] = [
+          ...this.boards
+            .filter(b => b.projectPath)
+            .map(b => ({ id: b.id, path: b.projectPath!, title: b.title })),
+          ...this.missingProjects,
+        ];
+
+        await tauri.set("boards", this.boards.filter(b => !b.projectPath));
+        await tauri.set("projects", projects);
         await tauri.set("pins", this.pins);
         await tauri.save();
+        await this._writeProjects();
       } catch (error) {
         console.error("Failed to save boards/pins:", error);
         // Consider user notification or rollback strategy
         throw error;
       }
+    },
+
+    // Project boards (saved in their own folder)
+    async _writeProject(board: Board) {
+      const json = serializeBoard(board);
+      await writeTextFile(board.projectPath!, json);
+      writtenProjects[board.id] = json;
+    },
+    async _writeProjects() {
+      for (const board of this.boards) {
+        if (!board.projectPath) continue;
+        if (writtenProjects[board.id] === serializeBoard(board)) continue;
+
+        try {
+          await this._writeProject(board);
+        } catch (e) {
+          console.error(`Failed to write project file for board ${board.title}`, e);
+        }
+      }
+    },
+    async _loadProject(ref: ProjectRef) {
+      try {
+        const board = JSON.parse(await readTextFile(ref.path)) as Board;
+        if (!board || !board.id || !Array.isArray(board.columns)) {
+          throw new Error("Not a Kanri project file");
+        }
+
+        // a copy of an already opened project would otherwise overwrite it
+        const clash = this.boards.some(b => b.id === board.id);
+        if (clash) board.id = generateUniqueID();
+
+        board.projectPath = ref.path;
+        if (!clash) writtenProjects[board.id] = serializeBoard(board);
+        this.boards.push(board);
+
+        // the project file is the source of truth for how its pin looks
+        const pin = this.pins.find(p => p.id === board.id);
+        if (pin) {
+          for (const field of PIN_FIELDS) pin[field] = board[field];
+        }
+        return board.id;
+      } catch (e) {
+        console.warn(`Could not load project ${ref.path}`, e);
+        return null;
+      }
+    },
+    // creates <parentDir>/<name>/<name>.kanri plus an attachments folder
+    async createProjectBoard(board: Board, parentDir: string) {
+      const name = safeFolderName(board.title);
+      const dir = await join(parentDir, name);
+      if (await exists(dir)) throw new Error("exists");
+
+      await mkdir(await join(dir, "attachments"), { recursive: true });
+      board.projectPath = await join(dir, `${name}.${PROJECT_EXTENSION}`);
+
+      this.upsertBoard(board);
+      await this._writeProject(this.boardById(board.id)!);
+    },
+    async openProject(path: string) {
+      const existing = this.boards.find(b => b.projectPath?.toLowerCase() === path.toLowerCase());
+      if (existing) return existing.id;
+
+      const id = await this._loadProject({ path });
+      if (!id) throw new Error("invalid");
+
+      this.missingProjects = this.missingProjects.filter(p => p.path.toLowerCase() !== path.toLowerCase());
+      return id;
+    },
+    async locateProject(oldPath: string, newPath: string) {
+      const missing = this.missingProjects.find(p => p.path === oldPath);
+      const id = await this.openProject(newPath);
+
+      this.missingProjects = this.missingProjects.filter(p => p !== missing);
+      // keep pins working when the file was given a new id
+      if (missing?.id && missing.id !== id) {
+        const pin = this.pins.find(p => p.id === missing.id);
+        if (pin) pin.id = id;
+      }
+    },
+    removeMissingProject(path: string) {
+      const missing = this.missingProjects.find(p => p.path === path);
+      this.missingProjects = this.missingProjects.filter(p => p.path !== path);
+      if (missing?.id) this.pins = this.pins.filter(p => p.id !== missing.id);
+    },
+    // moves a board stored in the app data into <parentDir>/<name>/ and copies its attachments along
+    async saveBoardToProject(id: string, parentDir: string) {
+      const index = this.boards.findIndex(b => b.id === id);
+      const board = this.boards[index];
+      if (!board || board.projectPath) return;
+
+      const name = safeFolderName(board.title);
+      const dir = await join(parentDir, name);
+      if (await exists(dir)) throw new Error("exists");
+
+      const attachmentsDir = await join(dir, "attachments");
+      await mkdir(attachmentsDir, { recursive: true });
+      const legacyDir = await join(await appDataDir(), "attachments");
+
+      const copy: Board = JSON.parse(JSON.stringify(board));
+      for (const column of copy.columns) {
+        for (const card of column.cards) {
+          for (const attachment of card.attachments ?? []) {
+            if (attachment.directory) continue;
+
+            // copied files, and links that point into the app's own attachments folder, become relative
+            const stored = attachment.path ? relativeInside(legacyDir, attachment.path) : attachment.file;
+            if (!stored) continue;
+
+            try {
+              await copyFile(await join(legacyDir, stored), await join(attachmentsDir, stored));
+              attachment.file = stored;
+              delete attachment.path;
+            } catch (e) {
+              console.warn("Could not copy attachment into project", e);
+            }
+          }
+        }
+      }
+
+      copy.projectPath = await join(dir, `${name}.${PROJECT_EXTENSION}`);
+      await writeTextFile(copy.projectPath, serializeBoard(copy));
+      writtenProjects[copy.id] = serializeBoard(copy);
+      this.boards[index] = copy;
     },
 
     // Board CRUD
@@ -91,6 +247,8 @@ export const useBoardsStore = defineStore("boards", {
     duplicateBoard(id: string) {
       const b = this.boardById(id);
       if (!b) return;
+      // a copy would share the original's project file and attachments
+      if (b.projectPath) return;
       
       const copy: Board = JSON.parse(JSON.stringify(b));
       copy.id = generateUniqueID();
@@ -130,7 +288,11 @@ export const useBoardsStore = defineStore("boards", {
 
       if (i === -1) {
         // TODO: see what order this creates
-        this.pins.push({ id, title: b.title });
+        const pin: Pin = { id, title: b.title };
+        if (b.projectPath) {
+          for (const field of PIN_FIELDS) pin[field] = b[field];
+        }
+        this.pins.push(pin);
       } else {
         // Remove the pin
         this.pins = this.pins.filter(p => p.id !== id);
@@ -149,6 +311,11 @@ export const useBoardsStore = defineStore("boards", {
       const pin = this.pins.find(p => p.id === id);
       if (pin) {
         mut(pin);
+
+        const board = this.boardById(id);
+        if (board?.projectPath) {
+          for (const field of PIN_FIELDS) board[field] = pin[field];
+        }
       }
     },
 

@@ -133,6 +133,7 @@ export const kanriJsonSchema = z.object({
         title: z.string(),
         pinIcon: z.string().optional(),
         pinIconText: z.string().optional(),
+        pinColor: z.string().optional(),
       })
     )
     .optional()

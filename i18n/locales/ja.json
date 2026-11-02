@@ -30,7 +30,15 @@
       "getUpdatesHeading": "最新の更新を入手したり、開発者とチャットしたいですか？",
       "joinDiscordButton": "Discord コミュニティに参加！",
       "deleteActionConfirmationHeading": "ボードを削除しますか？",
-      "deleteActionConfirmationText": "ボード {boardName} を削除してもよろしいですか？この操作は取り消せません。"
+      "deleteActionConfirmationText": "ボード {boardName} を削除してもよろしいですか？この操作は取り消せません。",
+      "openProject": "プロジェクトを開く…",
+      "projectNotFound": "プロジェクト「{name}」が見つかりません",
+      "locateProject": "場所を指定…",
+      "removeProject": "削除",
+      "saveToProjectFolder": "プロジェクトフォルダーに保存…",
+      "showProjectFolder": "プロジェクトフォルダーを表示",
+      "projectCreateError": "プロジェクトフォルダーを作成できませんでした。",
+      "projectOpenError": "このファイルは有効な Kanri プロジェクトではありません。"
     },
     "kanban": {
       "changeBackground": "背景を変更",
@@ -263,7 +271,11 @@
       "newColumn": "新しい列",
       "createBoardAction": "ボードを作成",
       "boardNameEmptyError": "ボード名は空にできません",
-      "placeholder": "ボードの名前を入力"
+      "placeholder": "ボードの名前を入力",
+      "location": "保存場所",
+      "chooseLocation": "選択…",
+      "savedTo": "保存先: {path}",
+      "folderExistsError": "その場所には同じ名前のフォルダーが既に存在します。"
     },
     "renameBoard": {
       "title": "ボードの名前を変更",

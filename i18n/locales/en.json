@@ -30,7 +30,15 @@
       "getUpdatesHeading": "Want to get the latest updates and chat with the creator?",
       "joinDiscordButton": "Join the Discord community!",
       "deleteActionConfirmationHeading": "Delete Board?",
-      "deleteActionConfirmationText": "Are you sure you want to delete the board {boardName}? This action is irreversible."
+      "deleteActionConfirmationText": "Are you sure you want to delete the board {boardName}? This action is irreversible.",
+      "openProject": "Open project…",
+      "projectNotFound": "Can't find project \"{name}\"",
+      "locateProject": "Locate…",
+      "removeProject": "Remove",
+      "saveToProjectFolder": "Save to project folder…",
+      "showProjectFolder": "Show project folder",
+      "projectCreateError": "Could not create the project folder.",
+      "projectOpenError": "That file is not a valid Kanri project."
     },
     "kanban": {
       "changeBackground": "Change Background",
@@ -218,10 +226,10 @@
       "priorityTitle": "Priority",
       "priorityNone": "None",
       "attachmentsTitle": "Attachments",
-      "attachmentAdd": "Add image, GIF or file",
+      "attachmentAdd": "Copy image, GIF or file",
       "attachmentLink": "Link to file",
       "attachmentLinkHint": "Store a link to the original file instead of copying it",
-      "attachmentLinkTo": "Link file or folder",
+      "attachmentLinkTo": "Link image, GIF, folder or file",
       "attachmentFolder": "Link to folder",
       "attachmentFolderHint": "Store a link to a folder",
       "attachmentReveal": "Show in folder",
@@ -263,7 +271,11 @@
       "newColumn": "New Column",
       "createBoardAction": "Create Board",
       "boardNameEmptyError": "Board name cannot be empty",
-      "placeholder": "Enter a name for the board"
+      "placeholder": "Enter a name for the board",
+      "location": "Save location",
+      "chooseLocation": "Choose…",
+      "savedTo": "Will be saved to {path}",
+      "folderExistsError": "A folder with this name already exists in that location."
     },
     "renameBoard": {
       "title": "Rename board",
