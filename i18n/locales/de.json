@@ -148,7 +148,7 @@
         "archived": "Archiviert",
         "autoComplete": "Hierher verschobene Karten automatisch abschließen",
         "compactProgress": "Fortschritt nur als Prozent anzeigen",
-        "expandProgress": "Fortschrittsbalken anzeigen"
+        "showPercentages": "Prozentwerte anzeigen"
       },
       "card": {
         "deleteCardAction": "Karte löschen",
@@ -210,8 +210,12 @@
       "priorityNone": "Keine",
       "attachmentsTitle": "Anhänge",
       "attachmentAdd": "Bild, GIF oder Datei hinzufügen",
-      "attachmentLink": "Mit Datei verknüpfen (keine Kopie)",
+      "attachmentLink": "Mit Datei verknüpfen",
       "attachmentLinkHint": "Verknüpfung zur Originaldatei speichern, statt sie zu kopieren",
+      "attachmentLinkTo": "Datei oder Ordner verknüpfen",
+      "attachmentFolder": "Ordner verknüpfen",
+      "attachmentFolderHint": "Verknüpfung zu einem Ordner speichern",
+      "attachmentReveal": "Im Ordner anzeigen",
       "attachmentMissing": "Originaldatei nicht gefunden",
       "useTasksAsProgress": "Aufgaben als Fortschritt verwenden",
       "taskTitle": "Aufgaben",

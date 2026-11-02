@@ -148,7 +148,7 @@
         "archived": "В архиве",
         "autoComplete": "Автоматически завершать карточки, перемещённые сюда",
         "compactProgress": "Показывать прогресс только в процентах",
-        "expandProgress": "Показывать полосы прогресса"
+        "showPercentages": "Показывать проценты"
       },
       "card": {
         "deleteCardAction": "Удалить карточку",
@@ -210,8 +210,12 @@
       "priorityNone": "Нет",
       "attachmentsTitle": "Вложения",
       "attachmentAdd": "Добавить изображение, GIF или файл",
-      "attachmentLink": "Ссылка на файл (без копии)",
+      "attachmentLink": "Ссылка на файл",
       "attachmentLinkHint": "Сохранить ссылку на исходный файл вместо копирования",
+      "attachmentLinkTo": "Ссылка на файл или папку",
+      "attachmentFolder": "Ссылка на папку",
+      "attachmentFolderHint": "Сохранить ссылку на папку",
+      "attachmentReveal": "Показать в папке",
       "attachmentMissing": "Исходный файл не найден",
       "useTasksAsProgress": "Использовать задачи как прогресс",
       "taskTitle": "Задания",

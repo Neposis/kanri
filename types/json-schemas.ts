@@ -51,6 +51,7 @@ const kanriCardSchema = z.object({
         name: z.string(),
         file: z.string(),
         path: z.string().optional(),
+        directory: z.boolean().optional(),
       })
     )
     .optional()

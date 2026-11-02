@@ -154,7 +154,7 @@
         "archived": "アーカイブ済み",
         "autoComplete": "ここに移動したカードを自動的に完了",
         "compactProgress": "進捗をパーセンテージのみで表示",
-        "expandProgress": "進捗バーを表示"
+        "showPercentages": "パーセンテージを表示"
       },
       "card": {
         "deleteCardAction": "カードを削除",
@@ -219,8 +219,12 @@
       "priorityNone": "なし",
       "attachmentsTitle": "添付ファイル",
       "attachmentAdd": "画像、GIF、ファイルを追加",
-      "attachmentLink": "ファイルにリンク（コピーなし）",
+      "attachmentLink": "ファイルにリンク",
       "attachmentLinkHint": "コピーせず元のファイルへのリンクを保存します",
+      "attachmentLinkTo": "ファイルまたはフォルダーをリンク",
+      "attachmentFolder": "フォルダーをリンク",
+      "attachmentFolderHint": "フォルダーへのリンクを保存",
+      "attachmentReveal": "フォルダーで表示",
       "attachmentMissing": "元のファイルが見つかりません",
       "useTasksAsProgress": "タスクを進捗として使用",
       "taskTitle": "タスク",

@@ -148,7 +148,7 @@
         "archived": "Arşivlenenler",
         "autoComplete": "Buraya taşınan kartları otomatik tamamla",
         "compactProgress": "İlerlemeyi yalnızca yüzde olarak göster",
-        "expandProgress": "İlerleme çubuklarını göster"
+        "showPercentages": "Yüzdeleri göster"
       },
       "card": {
         "deleteCardAction": "Kartı sil",
@@ -210,8 +210,12 @@
       "priorityNone": "Yok",
       "attachmentsTitle": "Ekler",
       "attachmentAdd": "Resim, GIF veya dosya ekle",
-      "attachmentLink": "Dosyaya bağlantı (kopyasız)",
+      "attachmentLink": "Dosyaya bağlantı",
       "attachmentLinkHint": "Kopyalamak yerine orijinal dosyaya bağlantı sakla",
+      "attachmentLinkTo": "Dosya veya klasöre bağla",
+      "attachmentFolder": "Klasöre bağla",
+      "attachmentFolderHint": "Bir klasöre bağlantı kaydet",
+      "attachmentReveal": "Klasörde göster",
       "attachmentMissing": "Orijinal dosya bulunamadı",
       "useTasksAsProgress": "Görevleri ilerleme olarak kullan",
       "taskTitle": "Görevler",

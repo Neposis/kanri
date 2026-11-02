@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import { computed, toValue } from "vue";
 import type { Ref } from "vue";
+import { appDataDir, join } from "@tauri-apps/api/path";
 import type { Attachment, Board, Card, Column, Tag } from "@/types/kanban-types";
 import { useBoardsStore } from "@/stores/boards";
 
@@ -107,10 +108,24 @@ export function useBoard(id: string | Ref<string>) {
     store.createCard(board.value.id, columnId, card, addToTop);
   }
 
-  function duplicateCard(columnId: string, cardId: string | undefined) {
+  async function duplicateCard(columnId: string, cardId: string | undefined) {
     if (!board.value) return;
     if (!cardId) return;
-    store.duplicateCard(board.value.id, columnId, cardId);
+
+    // copied files become references to the stored original, so the duplicate needs no extra copies
+    const column = board.value.columns.find((c) => c.id === columnId);
+    const card = column?.cards.find((c) => c.id === cardId);
+    const storedPaths: Record<string, string> = {};
+    try {
+      const dir = await join(await appDataDir(), "attachments");
+      for (const a of card?.attachments ?? []) {
+        if (!a.path) storedPaths[a.id] = await join(dir, a.file);
+      }
+    } catch (e) {
+      console.warn("Could not resolve attachment paths for duplicate", e);
+    }
+
+    store.duplicateCard(board.value.id, columnId, cardId, storedPaths);
   }
 
   function deleteCard(columnId: string, cardId: string | undefined) {

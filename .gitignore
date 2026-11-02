@@ -18,3 +18,4 @@ src-tauri/license.html
 
 src-tauri/gen/*
 src-tauri/gen/schemas
+TODO.md

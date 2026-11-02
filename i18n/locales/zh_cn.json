@@ -148,7 +148,7 @@
         "archived": "已归档",
         "autoComplete": "自动完成移入此处的卡片",
         "compactProgress": "仅以百分比显示进度",
-        "expandProgress": "显示进度条"
+        "showPercentages": "显示百分比"
       },
       "card": {
         "deleteCardAction": "删除卡片",
@@ -210,8 +210,12 @@
       "priorityNone": "无",
       "attachmentsTitle": "附件",
       "attachmentAdd": "添加图片、GIF 或文件",
-      "attachmentLink": "链接到文件（不复制）",
+      "attachmentLink": "链接到文件",
       "attachmentLinkHint": "保存指向原始文件的链接，而不是复制",
+      "attachmentLinkTo": "链接文件或文件夹",
+      "attachmentFolder": "链接文件夹",
+      "attachmentFolderHint": "保存文件夹的链接",
+      "attachmentReveal": "在文件夹中显示",
       "attachmentMissing": "找不到原始文件",
       "useTasksAsProgress": "使用任务作为进度",
       "taskTitle": "任务",

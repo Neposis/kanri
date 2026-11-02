@@ -3,7 +3,7 @@ import type { Attachment } from "@/types/kanban-types";
 import { convertFileSrc } from "@tauri-apps/api/core";
 import { appDataDir, join } from "@tauri-apps/api/path";
 import { open } from "@tauri-apps/plugin-dialog";
-import { revealItemInDir } from "@tauri-apps/plugin-opener";
+import { openPath, revealItemInDir } from "@tauri-apps/plugin-opener";
 import { copyFile, exists, mkdir, remove } from "@tauri-apps/plugin-fs";
 
 import { generateUniqueID } from "@/utils/idGenerator";
@@ -42,19 +42,26 @@ export function useAttachments() {
   };
 
   const pickAndStoreAttachments = async (
-    mode: "copy" | "link" = "copy"
+    mode: "copy" | "link" | "folder" = "copy"
   ): Promise<Array<Attachment>> => {
     const selected = await open({
+      directory: mode === "folder",
       multiple: true,
     });
     if (!selected) return [];
 
     const paths = Array.isArray(selected) ? selected : [selected];
 
-    if (mode === "link") {
+    if (mode === "link" || mode === "folder") {
       return paths.map((path) => {
-        const fileName = path.split(/[\\/]/).pop() ?? "file";
-        return { file: fileName, id: generateUniqueID(), name: fileName, path };
+        const fileName = path.split(/[\\/]/).filter(Boolean).pop() ?? "file";
+        return {
+          directory: mode === "folder" || undefined,
+          file: fileName,
+          id: generateUniqueID(),
+          name: fileName,
+          path,
+        };
       });
     }
 
@@ -81,12 +88,45 @@ export function useAttachments() {
     return stored;
   };
 
-  const deleteAttachmentFile = async (attachment: Attachment) => {
-    // linked originals belong to the user and are never deleted
-    if (attachment.path) return;
+  // name of the file inside the attachments folder that an entry points at, if any
+  const storedFileName = (attachment: Attachment, dir: string) => {
+    if (!attachment.path) return attachment.file;
 
+    const slashes = (p: string) => p.replace(/\\/g, "/");
+    const prefix = `${slashes(dir)}/`;
+    const path = slashes(attachment.path);
+    return path.toLowerCase().startsWith(prefix.toLowerCase())
+      ? path.slice(prefix.length)
+      : null;
+  };
+
+  // true when another card on any board still points at the same stored file
+  const isStoredFileShared = (attachment: Attachment, dir: string) => {
+    const target = storedFileName(attachment, dir)?.toLowerCase();
+    if (!target) return false;
+
+    for (const board of useBoardsStore().boards) {
+      for (const column of board.columns) {
+        for (const card of column.cards) {
+          for (const other of card.attachments ?? []) {
+            if (other.id === attachment.id) continue;
+            if (storedFileName(other, dir)?.toLowerCase() === target) return true;
+          }
+        }
+      }
+    }
+    return false;
+  };
+
+  // call after the entry was removed from its card; the file is only deleted once nothing else uses it
+  const deleteAttachmentFile = async (attachment: Attachment) => {
     try {
-      await remove(await join(await attachmentsDir(), attachment.file));
+      const dir = await attachmentsDir();
+      const name = storedFileName(attachment, dir);
+      // linked originals outside the attachments folder belong to the user and are never deleted
+      if (!name || isStoredFileShared(attachment, dir)) return;
+
+      await remove(await join(dir, name));
     } catch (e) {
       console.warn("Could not remove attachment file", e);
     }
@@ -107,14 +147,17 @@ export function useAttachments() {
     }
   };
 
-  const revealAttachment = async (attachment: Attachment) => {
+  // opens the file or folder with its default app, or only shows it in the explorer when reveal is set
+  const revealAttachment = async (attachment: Attachment, reveal = true) => {
     if (!(await attachmentExists(attachment))) return false;
     if (attachment.path && isAttachmentMissing(attachment)) return true;
 
     try {
-      await revealItemInDir(await resolvePath(attachment));
+      const path = await resolvePath(attachment);
+      if (reveal) await revealItemInDir(path);
+      else await openPath(path);
     } catch (e) {
-      console.error("Could not reveal attachment", e);
+      console.error("Could not open attachment", e);
     }
     return true;
   };

@@ -62,6 +62,7 @@ export declare interface Attachment {
   name: string;
   file: string;
   path?: string;
+  directory?: boolean;
 }
 
 export declare interface Card {

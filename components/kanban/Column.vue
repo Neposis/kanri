@@ -101,7 +101,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>. -->
               @click="$emit('updateColumnCompactProgress', id, !compactProgress)"
             >
                 <span class="flex size-4 shrink-0 items-center justify-center rounded border border-current text-xs leading-none">{{ compactProgress ? "" : "✓" }}</span>
-                {{ $t('components.kanban.column.expandProgress') }}
+                {{ $t('components.kanban.column.showPercentages') }}
             </DropdownMenuItem>
             <DropdownMenuItem
               class="bg-elevation-2-hover flex w-full cursor-pointer items-center gap-2 rounded-md px-4 py-1.5 pr-6 text-left"
@@ -800,7 +800,12 @@ const onDrop = (archived: boolean, dropResult: any) => {
 const getChildPayload = (index: number) => activeCards.value[index];
 const getArchivedChildPayload = (index: number) => archivedCards.value[index];
 
-const archiveOpen = ref(false);
+const archiveStorageKey = `kanri-archive-open-${props.id}`;
+const archiveOpen = ref(localStorage.getItem(archiveStorageKey) === "1");
+watch(archiveOpen, (open) => {
+  if (open) localStorage.setItem(archiveStorageKey, "1");
+  else localStorage.removeItem(archiveStorageKey);
+});
 const activeCards = computed(() => filteredCards.value.filter((c) => !c.done));
 const archivedCards = computed(() => filteredCards.value.filter((c) => c.done));
 
@@ -881,6 +886,7 @@ const addCard = () => {
     isDueDateCounterRelative: false,
     isDueDateCompleted: false,
     tags: [],
+    hideProgress: true,
   };
 
   emit("addCard", props.id, card, cardAddModeAddToTopOfColumn.value);

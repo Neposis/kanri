@@ -24,24 +24,47 @@ limitations under the License.
           name === '---' ? 'separator-card' : zoomClass,
           cardBackgroundColor.startsWith('#') ? '' : cardBackgroundColor,
           cardTextColor,
+          { 'pb-5': hasProgress && !compactProgress },
         ]"
         :style="[
           cardBackgroundColor.startsWith('#')
             ? { 'background-color': cardBackgroundColor }
             : {},
         ]"
-        class="kanban-card border-elevation-3 flex min-h-[30px] w-full cursor-pointer flex-col items-start gap-1 rounded-[3px] border p-3"
-        @click.self="$emit('openEditCardModal', card)"
+        class="kanban-card group/card border-elevation-3         relative flex min-h-[30px] w-full cursor-pointer flex-col items-start gap-1 rounded-[3px] border p-3"
+                @click.self="$emit('openEditCardModal', card)"
       >
         <div
-          :class="{ 'pb-1': cardHasNoExtraProperties, 'flex-wrap': hasProgress }"
+          v-if="hasProgress"
+          class="pointer-events-none absolute inset-x-0 top-0 h-[3px] overflow-hidden rounded-t-[2px]"
+        >
+          <div
+            class="h-full transition-all duration-300"
+            :class="progressColor.bar"
+            :style="{ width: `${card.progress}%` }"
+          />
+        </div>
+        <span
+          v-if="hasProgress && !compactProgress"
+          class="pointer-events-none absolute bottom-1 right-2 text-[10px] font-semibold leading-3"
+          :class="progressColor.text"
+        >
+          {{ card.progress }}%
+        </span>
+        <div
+          :class="{ 'pb-1': cardHasNoExtraProperties }"
           class="flex w-full flex-row items-start justify-between"
         >
           <button
             v-if="name !== '---'"
             type="button"
-            class="group mr-2 mt-[4px] shrink-0 cursor-pointer"
-            :class="card.done ? 'text-green-500' : cardTextColorDim"
+            class="group shrink-0 cursor-pointer overflow-hidden transition-all duration-200 ease-out"
+            :class="[
+              card.done ? 'text-green-500' : cardTextColorDim,
+              card.done
+                ? 'mr-2 mt-[4px] max-w-8 opacity-100'
+                : 'mr-0 mt-[4px] max-w-0 opacity-0 group-hover/card:mr-2 group-hover/card:max-w-8 group-hover/card:opacity-100 focus-visible:mr-2 focus-visible:max-w-8 focus-visible:opacity-100',
+            ]"
             @click.stop="emit('setCardDone', card.id, !card.done)"
             @contextmenu.stop.prevent="deleteCardWithConfirmation(card.id)"
           >
@@ -62,29 +85,9 @@ limitations under the License.
             </span>
           </button>
           <div
-            v-if="hasProgress"
-            class="mr-2 mt-[4px] flex min-w-0 flex-1 flex-row items-center gap-2 self-center"
-            @click="$emit('openEditCardModal', card)"
-          >
-            <div
-              v-if="!compactProgress"
-              class="bg-elevation-3 h-1.5 flex-1 overflow-hidden rounded-full"
-            >
-              <div
-                class="h-full rounded-full transition-all duration-300"
-                :class="progressColor.bar"
-                :style="{ width: `${card.progress}%` }"
-              />
-            </div>
-            <span class="shrink-0 text-xs font-semibold" :class="progressColor.text">
-              {{ card.progress }}%
-            </span>
-          </div>
-          <div
             class="mr-2 flex w-full min-w-[28px] flex-row items-start gap-2"
-            :class="{ 'order-1 mt-1 basis-full': hasProgress }"
           >
-            <p class="text-no-overflow min-w-0 flex-1">
+            <p class="text-no-overflow relative -top-px min-w-0 flex-1">
               <ClickCounter
                 v-if="!cardNameEditMode"
                 @double-click="enableCardEditMode"
@@ -121,7 +124,7 @@ limitations under the License.
 
         <div
           v-if="cardTags && cardTags?.length > 0"
-          class="-ml-0.5 -mt-0.5 mb-1 flex flex-row flex-wrap items-center gap-1"
+          class="-ml-0.5 -mt-px mb-0.5 flex flex-row flex-wrap items-center gap-1"
           @click="$emit('openEditCardModal', card)"
         >
           <div v-for="tag in cardTags" :key="tag.id">
@@ -130,6 +133,7 @@ limitations under the License.
         </div>
 
         <div
+          v-if="hasInfoRow"
           class="flex flex-row flex-wrap items-center gap-2"
           @click="$emit('openEditCardModal', card)"
         >
@@ -208,6 +212,53 @@ limitations under the License.
         </div>
 
         <div
+          v-if="fileAttachments.length > 0"
+          class="task-list flex w-full min-w-0 flex-row items-start gap-1 pt-1"
+        >
+          <div
+            ref="fileRow"
+            class="file-row flex min-w-0 flex-1 flex-row gap-1"
+            :class="filesExpanded ? 'flex-wrap' : 'overflow-hidden'"
+          >
+            <button
+              v-for="attachment in fileAttachments"
+              :key="attachment.id"
+              class="bg-elevation-2 bg-elevation-3-hover flex max-w-28 shrink-0 items-center gap-1 rounded-md px-1.5 py-1"
+              :class="[taskTextClass, { 'opacity-60': isAttachmentMissing(attachment) }]"
+              :title="
+                isAttachmentMissing(attachment)
+                  ? `${attachment.name} (${$t('modals.editCard.attachmentMissing')})`
+                  : (attachment.path ?? attachment.name)
+              "
+              @click.stop="openAttachment(attachment)"
+            >
+              <PhWarning
+                v-if="isAttachmentMissing(attachment)"
+                class="shrink-0 text-yellow-500"
+                :class="iconSizeClass"
+              />
+              <PhLink v-else-if="attachment.path && !attachment.directory" class="shrink-0" :class="iconSizeClass" />
+              <PhFolder v-else-if="attachment.directory" class="shrink-0" :class="iconSizeClass" />
+              <PhFile v-else class="shrink-0" :class="iconSizeClass" />
+              <span
+                class="truncate"
+                :class="{ 'line-through': isAttachmentMissing(attachment) }"
+                >{{ attachment.name }}</span
+              >
+            </button>
+          </div>
+          <button
+            v-if="filesOverflow || filesExpanded"
+            class="bg-elevation-2 bg-elevation-3-hover shrink-0 rounded-md p-1"
+            @click.stop="filesExpanded = !filesExpanded"
+          >
+            <PhCaretDown
+              class="transition-transform duration-200"
+              :class="[iconSizeClass, { 'rotate-180': filesExpanded }]"
+            />
+          </button>
+        </div>
+        <div
           v-if="stackedAttachments.length > 0"
           class="flex flex-row items-center pt-1"
           @mouseleave="hoveredAttachment = null"
@@ -237,58 +288,6 @@ limitations under the License.
             class="text-dim-1 ml-2 text-xs"
             >+{{ imageAttachments.length - stackedAttachments.length }}</span
           >
-        </div>
-        <div v-if="fileAttachments.length > 0" class="task-list w-fit min-w-0 max-w-full pt-1">
-          <div
-            ref="fileRow"
-            class="file-row flex flex-row gap-1 overflow-x-auto"
-            @scroll="updateFileScroll"
-            @wheel="onFileRowWheel"
-          >
-            <button
-              v-for="attachment in fileAttachments"
-              :key="attachment.id"
-              class="bg-elevation-2 bg-elevation-3-hover flex max-w-28 shrink-0 items-center gap-1 rounded-md px-1.5 py-1"
-              :class="[taskTextClass, { 'opacity-60': isAttachmentMissing(attachment) }]"
-              :title="
-                isAttachmentMissing(attachment)
-                  ? `${attachment.name} (${$t('modals.editCard.attachmentMissing')})`
-                  : (attachment.path ?? attachment.name)
-              "
-              @click.stop="openAttachment(attachment)"
-            >
-              <PhWarning
-                v-if="isAttachmentMissing(attachment)"
-                class="shrink-0 text-yellow-500"
-                :class="iconSizeClass"
-              />
-              <PhLink v-else-if="attachment.path" class="shrink-0" :class="iconSizeClass" />
-              <PhFile v-else class="shrink-0" :class="iconSizeClass" />
-              <span
-                class="truncate"
-                :class="{ 'line-through': isAttachmentMissing(attachment) }"
-                >{{ attachment.name }}</span
-              >
-            </button>
-          </div>
-          <div
-            v-if="fileScroll.canScroll"
-            ref="fileTrack"
-            class="relative mt-1 h-1 cursor-pointer rounded-full bg-black/25"
-            @click.stop
-            @pointerdown.stop.prevent="onFileTrackDown"
-            @pointermove="onFileTrackMove"
-            @pointerup="onFileTrackUp"
-            @pointercancel="onFileTrackUp"
-          >
-            <div
-              class="bg-accent absolute top-0 h-full rounded-full opacity-80 hover:opacity-100"
-              :style="{
-                left: `${fileScroll.thumbLeft}%`,
-                width: `${fileScroll.thumbWidth}%`,
-              }"
-            />
-          </div>
         </div>
         <Teleport to="body">
           <Transition name="attachment-preview">
@@ -351,6 +350,7 @@ import {
   PhCaretDown,
   PhCircle,
   PhFile,
+  PhFolder,
   PhLink,
   PhWarning,
   PhChecks,
@@ -424,7 +424,7 @@ const removeMissingAttachment = (attachment: Attachment) => {
 };
 
 const openAttachment = async (attachment: Attachment) => {
-  if (!(await revealAttachment(attachment))) removeMissingAttachment(attachment);
+  if (!(await revealAttachment(attachment, false))) removeMissingAttachment(attachment);
 };
 
 // drops entries whose stored file has been deleted outside the app
@@ -446,12 +446,12 @@ const hoveredAttachment: Ref<Attachment | null> = ref(null);
 const previewStyle = ref<Record<string, string>>({});
 const imageAttachments = computed(() =>
   (props.card.attachments ?? []).filter(
-    (a) => isImageFile(a.file) && !isAttachmentMissing(a)
+    (a) => isImageFile(a.file) && !a.directory && !isAttachmentMissing(a)
   )
 );
 const fileAttachments = computed(() =>
   (props.card.attachments ?? []).filter(
-    (a) => !isImageFile(a.file) || isAttachmentMissing(a)
+    (a) => !isImageFile(a.file) || a.directory || isAttachmentMissing(a)
   )
 );
 const stackedAttachments = computed(() => imageAttachments.value.slice(0, 4));
@@ -480,77 +480,25 @@ const progressColor = computed(() => {
 });
 
 const fileRow: Ref<HTMLDivElement | null> = ref(null);
-const fileTrack: Ref<HTMLDivElement | null> = ref(null);
-const fileScroll = ref({ canScroll: false, thumbLeft: 0, thumbWidth: 100 });
-let fileDrag: { startScroll: number; startX: number } | null = null;
+const filesExpanded = ref(false);
+const filesOverflow = ref(false);
 
-const updateFileScroll = () => {
+// overflow can only be measured while collapsed (single non-wrapping row)
+const updateFilesOverflow = () => {
   const el = fileRow.value;
-  if (!el || el.scrollWidth <= el.clientWidth + 1) {
-    fileScroll.value = { canScroll: false, thumbLeft: 0, thumbWidth: 100 };
-    return;
-  }
-  const thumbWidth = Math.max((el.clientWidth / el.scrollWidth) * 100, 10);
-  const maxScroll = el.scrollWidth - el.clientWidth;
-  fileScroll.value = {
-    canScroll: true,
-    thumbLeft: (el.scrollLeft / maxScroll) * (100 - thumbWidth),
-    thumbWidth,
-  };
+  if (!el || filesExpanded.value) return;
+  filesOverflow.value = el.scrollWidth > el.clientWidth + 1;
 };
 
-const onFileTrackDown = (event: PointerEvent) => {
-  const el = fileRow.value;
-  const track = fileTrack.value;
-  if (!el || !track) return;
-
-  track.setPointerCapture(event.pointerId);
-  const rect = track.getBoundingClientRect();
-  const maxScroll = el.scrollWidth - el.clientWidth;
-  const thumbPx = (fileScroll.value.thumbWidth / 100) * rect.width;
-  const thumbStartPx = (fileScroll.value.thumbLeft / 100) * rect.width;
-  const clickX = event.clientX - rect.left;
-
-  // clicking outside the thumb jumps there, then dragging continues from that point
-  if (clickX < thumbStartPx || clickX > thumbStartPx + thumbPx) {
-    el.scrollLeft = ((clickX - thumbPx / 2) / (rect.width - thumbPx)) * maxScroll;
-  }
-  fileDrag = { startScroll: el.scrollLeft, startX: event.clientX };
-};
-
-const onFileTrackMove = (event: PointerEvent) => {
-  const el = fileRow.value;
-  const track = fileTrack.value;
-  if (!fileDrag || !el || !track) return;
-
-  const trackWidth = track.getBoundingClientRect().width;
-  const thumbPx = (fileScroll.value.thumbWidth / 100) * trackWidth;
-  const maxScroll = el.scrollWidth - el.clientWidth;
-  el.scrollLeft =
-    fileDrag.startScroll +
-    ((event.clientX - fileDrag.startX) / (trackWidth - thumbPx)) * maxScroll;
-};
-
-const onFileTrackUp = (event: PointerEvent) => {
-  fileDrag = null;
-  fileTrack.value?.releasePointerCapture(event.pointerId);
-};
-
-watch(fileAttachments, () => nextTick(updateFileScroll), { immediate: true });
+watch(fileAttachments, () => nextTick(updateFilesOverflow), { immediate: true });
 watch(fileRow, (el) => {
   if (!el) return;
-  new ResizeObserver(updateFileScroll).observe(el);
-  updateFileScroll();
+  new ResizeObserver(updateFilesOverflow).observe(el);
+  updateFilesOverflow();
 });
-
-// lets a regular mouse wheel scroll the row sideways
-const onFileRowWheel = (event: WheelEvent) => {
-  const el = event.currentTarget as HTMLElement;
-  if (el.scrollWidth <= el.clientWidth || event.deltaX !== 0) return;
-  el.scrollLeft += event.deltaY;
-  event.preventDefault();
-};
-
+watch(filesExpanded, (expanded) => {
+  if (!expanded) nextTick(updateFilesOverflow);
+});
 const fullscreenAttachment: Ref<Attachment | null> = ref(null);
 
 const openFullscreen = (attachment: Attachment) => {
@@ -598,12 +546,20 @@ onMounted(() => {
   savedColors.value = themeStore.colors;
 });
 
+const hasInfoRow = computed(
+  () =>
+    !isDescriptionEmpty.value ||
+    (!!tasks.value && tasks.value.length > 0) ||
+    !!dueDate.value
+);
+
 const cardHasNoExtraProperties = computed(() => {
   return (
     (!tasks.value || tasks.value.length === 0) &&
-    isDescriptionEmpty &&
+    isDescriptionEmpty.value &&
     !dueDate.value &&
     (props.card.tags || []).length === 0 &&
+    !(props.card.attachments ?? []).length &&
     !props.card.name.startsWith("---")
   );
 });
@@ -853,14 +809,6 @@ const updateCardName = () => {
 </script>
 
 <style scoped>
-.file-row {
-  scrollbar-width: none;
-}
-
-.file-row::-webkit-scrollbar {
-  display: none;
-}
-
 .attachment-preview-enter-active,
 .attachment-preview-leave-active {
   transition: opacity 150ms ease-out, transform 150ms ease-out;

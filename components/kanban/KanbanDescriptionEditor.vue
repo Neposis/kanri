@@ -212,7 +212,7 @@ export default {
 }
 
 .tiptap.ProseMirror {
-  height: 148px;
+  height: 90px;
   overflow: auto;
   padding: 4px;
   resize: vertical;

@@ -151,7 +151,7 @@
         "archived": "เก็บถาวร",
         "autoComplete": "ทำเครื่องหมายเสร็จอัตโนมัติสำหรับการ์ดที่ย้ายมาที่นี่",
         "compactProgress": "แสดงความคืบหน้าเป็นเปอร์เซ็นต์เท่านั้น",
-        "expandProgress": "แสดงแถบความคืบหน้า"
+        "showPercentages": "แสดงเปอร์เซ็นต์"
       },
       "card": {
         "deleteCardAction": "ลบการ์ด",
@@ -213,8 +213,12 @@
       "priorityNone": "ไม่มี",
       "attachmentsTitle": "ไฟล์แนบ",
       "attachmentAdd": "เพิ่มรูปภาพ GIF หรือไฟล์",
-      "attachmentLink": "ลิงก์ไปยังไฟล์ (ไม่คัดลอก)",
+      "attachmentLink": "ลิงก์ไปยังไฟล์",
       "attachmentLinkHint": "เก็บลิงก์ไปยังไฟล์ต้นฉบับแทนการคัดลอก",
+      "attachmentLinkTo": "ลิงก์ไฟล์หรือโฟลเดอร์",
+      "attachmentFolder": "ลิงก์โฟลเดอร์",
+      "attachmentFolderHint": "บันทึกลิงก์ไปยังโฟลเดอร์",
+      "attachmentReveal": "แสดงในโฟลเดอร์",
       "attachmentMissing": "ไม่พบไฟล์ต้นฉบับ",
       "useTasksAsProgress": "ใช้งานย่อยเป็นความคืบหน้า",
       "taskTitle": "งาน",

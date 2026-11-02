@@ -154,7 +154,7 @@
         "archived": "Archived",
         "autoComplete": "Auto-complete cards moved here",
         "compactProgress": "Show progress as percentage only",
-        "expandProgress": "Show progress bars"
+        "showPercentages": "Show percentages"
       },
       "card": {
         "deleteCardAction": "Delete card",
@@ -219,8 +219,12 @@
       "priorityNone": "None",
       "attachmentsTitle": "Attachments",
       "attachmentAdd": "Add image, GIF or file",
-      "attachmentLink": "Link to file (no copy)",
+      "attachmentLink": "Link to file",
       "attachmentLinkHint": "Store a link to the original file instead of copying it",
+      "attachmentLinkTo": "Link file or folder",
+      "attachmentFolder": "Link to folder",
+      "attachmentFolderHint": "Store a link to a folder",
+      "attachmentReveal": "Show in folder",
       "attachmentMissing": "Original file not found",
       "useTasksAsProgress": "Use tasks as progress",
       "taskTitle": "Tasks",

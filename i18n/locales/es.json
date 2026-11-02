@@ -148,7 +148,7 @@
         "archived": "Archivadas",
         "autoComplete": "Completar automáticamente las cartas movidas aquí",
         "compactProgress": "Mostrar el progreso solo como porcentaje",
-        "expandProgress": "Mostrar barras de progreso"
+        "showPercentages": "Mostrar porcentajes"
       },
       "card": {
         "deleteCardAction": "Borrar carta",
@@ -210,8 +210,12 @@
       "priorityNone": "Ninguna",
       "attachmentsTitle": "Adjuntos",
       "attachmentAdd": "Añadir imagen, GIF o archivo",
-      "attachmentLink": "Enlazar archivo (sin copiar)",
+      "attachmentLink": "Enlazar archivo",
       "attachmentLinkHint": "Guardar un enlace al archivo original en lugar de copiarlo",
+      "attachmentLinkTo": "Vincular archivo o carpeta",
+      "attachmentFolder": "Vincular carpeta",
+      "attachmentFolderHint": "Guardar un enlace a una carpeta",
+      "attachmentReveal": "Mostrar en carpeta",
       "attachmentMissing": "Archivo original no encontrado",
       "useTasksAsProgress": "Usar tareas como progreso",
       "taskTitle": "Tareas",

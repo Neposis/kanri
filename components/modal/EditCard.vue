@@ -239,7 +239,7 @@ limitations under the License.
             >
               <template #default="{ togglePopover }">
                 <button
-                  class="bg-elevation-2 bg-elevation-3-hover mt-1 flex items-center justify-center gap-2 rounded-md px-2 py-1"
+                  class="bg-elevation-2 bg-elevation-3-hover mt-2 flex items-center justify-center gap-2 rounded-md px-2 py-1"
                   @click="() => togglePopover()"
                 >
                   <PhCalendar class="size-5" />
@@ -285,15 +285,10 @@ limitations under the License.
                 </div>
               </template>
             </VDatePicker>
-          </div>
-        </div>
-
-        <div class="overflow-auto">
-          <div class="mb-2 flex flex-row items-center gap-2 pr-6">
-            <h2 class="text-lg font-semibold">
-              {{ $t("modals.editCard.priorityTitle") }}
-            </h2>
-            <div class="ml-auto flex flex-row gap-1">
+            <div class="mt-1 ml-auto flex flex-row items-center gap-1 pr-6">
+              <span class="text-dim-1 mr-1 text-sm">
+                {{ $t("modals.editCard.priorityTitle") }}
+              </span>
               <button
                 v-for="level in 4"
                 :key="level"
@@ -312,6 +307,9 @@ limitations under the License.
               </button>
             </div>
           </div>
+        </div>
+
+        <div class="overflow-auto">
           <div class="flex flex-col pr-6">
             <div class="flex flex-row items-center gap-2">
               <h2 class="text-lg font-semibold">
@@ -379,7 +377,7 @@ limitations under the License.
             <div class="flex w-full flex-col gap-1">
               <div
                 v-if="tasks && tasks.length !== 0"
-                class="flex max-h-[250px] w-[calc(100%-17px)] resize-y flex-col gap-4 overflow-auto pl-1 pr-4"
+                class="flex max-h-[250px] w-[calc(100%-17px)] flex-col gap-4 overflow-auto pl-1 pr-4"
               >
                 <Container
                   drag-class="cursor-grabbing"
@@ -553,7 +551,7 @@ limitations under the License.
                 <div class="absolute right-1 top-1 hidden gap-1 group-hover:flex">
                   <button
                     class="rounded bg-black/60 p-0.5 text-white"
-                    @click.stop="openAttachment(attachment)"
+                    @click.stop="openAttachment(attachment, true)"
                   >
                     <PhFolderOpen class="size-4" />
                   </button>
@@ -579,14 +577,21 @@ limitations under the License.
                   v-if="isAttachmentMissing(attachment)"
                   class="size-5 shrink-0 text-yellow-500"
                 />
-                <PhLink v-else-if="attachment.path" class="size-5 shrink-0" />
+                <PhLink v-else-if="attachment.path && !attachment.directory" class="size-5 shrink-0" />
+                <PhFolder v-else-if="attachment.directory" class="size-5 shrink-0" />
                 <PhFile v-else class="size-5 shrink-0" />
                 <span
                   class="w-full truncate"
                   :class="{ 'line-through': isAttachmentMissing(attachment) }"
                   >{{ attachment.name }}</span
                 >
-                <PhFolderOpen class="text-dim-2 size-4 shrink-0" />
+                <button
+                  class="shrink-0"
+                  :title="$t('modals.editCard.attachmentReveal')"
+                  @click.stop="openAttachment(attachment, true)"
+                >
+                  <PhFolderOpen class="text-dim-2 text-accent-hover size-4" />
+                </button>
                 <button
                   class="shrink-0"
                   @click.stop="removeAttachment(attachment)"
@@ -603,14 +608,36 @@ limitations under the License.
                 <PlusIcon class="text-accent size-6 shrink-0" />
                 <span class="truncate">{{ $t("modals.editCard.attachmentAdd") }}</span>
               </button>
-              <button
-                class="bg-elevation-1 bg-elevation-2-hover flex h-min min-w-0 flex-1 cursor-pointer flex-row items-center gap-2 rounded-md px-2 py-1"
-                :title="$t('modals.editCard.attachmentLinkHint')"
-                @click="addAttachments('link')"
-              >
-                <PhLink class="text-accent size-5 shrink-0" />
-                <span class="truncate">{{ $t("modals.editCard.attachmentLink") }}</span>
-              </button>
+              <div v-on-click-outside="() => (linkMenuOpen = false)" class="relative min-w-0 flex-1">
+                <button
+                  class="bg-elevation-1 bg-elevation-2-hover flex h-min w-full min-w-0 cursor-pointer flex-row items-center gap-2 rounded-md px-2 py-1"
+                  :title="$t('modals.editCard.attachmentLinkHint')"
+                  @click="linkMenuOpen = !linkMenuOpen"
+                >
+                  <PhLink class="text-accent size-5 shrink-0" />
+                  <span class="truncate">{{ $t("modals.editCard.attachmentLinkTo") }}</span>
+                  <PhCaretDown class="ml-auto size-4 shrink-0" />
+                </button>
+                <div
+                  v-if="linkMenuOpen"
+                  class="bg-primary border-elevation-1 absolute bottom-full left-0 z-20 mb-1 flex w-max min-w-full flex-col rounded-md border p-1"
+                >
+                  <button
+                    class="bg-elevation-2-hover flex flex-row items-center gap-2 rounded-md px-2 py-1"
+                    @click="linkMenuOpen = false; addAttachments('link')"
+                  >
+                    <PhFile class="text-accent size-5 shrink-0" />
+                    {{ $t("modals.editCard.attachmentLink") }}
+                  </button>
+                  <button
+                    class="bg-elevation-2-hover flex flex-row items-center gap-2 rounded-md px-2 py-1"
+                    @click="linkMenuOpen = false; addAttachments('folder')"
+                  >
+                    <PhFolder class="text-accent size-5 shrink-0" />
+                    {{ $t("modals.editCard.attachmentFolder") }}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
           <Teleport to="body">
@@ -651,7 +678,9 @@ import { CheckIcon, PlusIcon, XMarkIcon } from "@heroicons/vue/24/solid";
 import {
   PhCalendar,
   PhCheck,
+  PhCaretDown,
   PhFile,
+  PhFolder,
   PhFolderOpen,
   PhLink,
   PhWarning,
@@ -780,14 +809,14 @@ const onAttachmentEnter = (event: MouseEvent, attachment: Attachment) => {
 const { attachmentExists, deleteAttachmentFile, getAttachmentUrl, pickAndStoreAttachments, revealAttachment } =
   useAttachments();
 const imageAttachments = computed(() =>
-  attachments.value.filter((a) => isImageFile(a.file))
+  attachments.value.filter((a) => isImageFile(a.file) && !a.directory)
 );
 const fileAttachments = computed(() =>
-  attachments.value.filter((a) => !isImageFile(a.file))
+  attachments.value.filter((a) => !isImageFile(a.file) || a.directory)
 );
 
-const openAttachment = async (attachment: Attachment) => {
-  if (await revealAttachment(attachment)) return;
+const openAttachment = async (attachment: Attachment, reveal = false) => {
+  if (await revealAttachment(attachment, reveal)) return;
 
   attachments.value = attachments.value.filter((a) => a.id !== attachment.id);
   emit("setCardAttachments", columnID.value, props.card?.id, attachments.value);
@@ -811,7 +840,9 @@ const resolveAttachmentUrls = async () => {
   }
 };
 
-const addAttachments = async (mode: "copy" | "link") => {
+const linkMenuOpen = ref(false);
+
+const addAttachments = async (mode: "copy" | "link" | "folder") => {
   const added = await pickAndStoreAttachments(mode);
   if (added.length === 0) return;
 

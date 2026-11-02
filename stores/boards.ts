@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 import { defineStore } from "pinia";
+import { toRaw } from "vue";
 import type { Board, Column, Card, Tag } from "@/types/kanban-types";
 import { useTauriStore } from "@/stores/tauriStore";
 import { generateUniqueID } from "@/utils/idGenerator";
@@ -316,7 +317,12 @@ export const useBoardsStore = defineStore("boards", {
       }
       b.lastEdited = new Date();
     },
-    duplicateCard(boardId: string, columnId: string, cardId: string) {
+    duplicateCard(
+      boardId: string,
+      columnId: string,
+      cardId: string,
+      storedPaths: Record<string, string> = {}
+    ) {
       const b = this.boardById(boardId);
       if (!b) return;
       const col = b.columns.find(c => c.id === columnId);
@@ -324,23 +330,22 @@ export const useBoardsStore = defineStore("boards", {
       const card = col.cards.find(c => c.id === cardId);
       if (!card) return;
 
-      // Clone card while preserving Date objects and creating new array instances
+      // structuredClone throws on Vue reactive proxies, so work from the raw object
+      const raw = toRaw(card);
       let copy: Card;
-      if (typeof structuredClone === "function") {
-        // structuredClone preserves Date instances and performs a deep clone
-        copy = structuredClone(card);
-      } else {
-        // Fallback: shallow-copy primitives and explicitly copy arrays and Date-like fields
-        copy = {
-          ...card,
-          // Normalize dueDate to a Date if it was a string; keep null/undefined as is
-          dueDate: card.dueDate ? new Date(card.dueDate) : null,
-          tasks: card.tasks ? card.tasks.map(t => ({ ...t })) : undefined,
-          tags: card.tags ? card.tags.map(t => ({ ...t })) : undefined,
-        } as Card;
+      try {
+        copy = structuredClone(raw);
+      } catch {
+        copy = JSON.parse(JSON.stringify(raw)) as Card;
+        if (raw.dueDate) copy.dueDate = new Date(raw.dueDate);
       }
 
       copy.id = generateUniqueID();
+      copy.attachments = copy.attachments?.map((a) => ({
+        ...a,
+        id: generateUniqueID(),
+        path: a.path ?? storedPaths[a.id],
+      }));
       copy.name = `${copy.name} (copy)`;
       col.cards.push(copy);
       b.lastEdited = new Date();
